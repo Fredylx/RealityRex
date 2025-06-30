@@ -7,6 +7,7 @@
 
 import Foundation
 import RealityKit
+import UIKit
 
 class RexData {
     
@@ -60,7 +61,18 @@ class RexData {
         
         guard let bodyResourceColor = bodyResourceColor else { return material }
         let baseColor = MaterialParameters.Texture(bodyResourceColor)
-        material.baseColor = .init(texture: baseColor)
+        material.baseColor = .init(tint: .gray) // ✅ fallback color
+//        material.baseColor = .color(.gray)
+//        material.baseColor = .color(UIColor.gray)
+//        material.baseColor = .init(texture: baseColor)
+//        var material = PhysicallyBasedMaterial()
+//
+//        if let bodyResourceColor = bodyResourceColor {
+//            material.baseColor = .init(texture: .init(bodyResourceColor))
+//        } else {
+//            material.baseColor = .init(tint: .gray) // ✅ fallback color
+//        }
+
         
         guard let bodyResourceNormal = bodyResourceNormal else { return material }
         let normalColor = MaterialParameters.Texture(bodyResourceNormal)
@@ -159,9 +171,8 @@ class RexData {
             let result = try Data(contentsOf: url)
             return result
         } catch let error {
-            print("Could not load file for \(fileName) with extension \(fileExtension)")
+            print("Failed to load \(fileName).\(fileExtension)")
             return nil
         }
     }
-    
 }

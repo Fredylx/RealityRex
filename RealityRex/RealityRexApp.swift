@@ -12,6 +12,7 @@ struct RealityRexApp: App {
     var body: some Scene {
         WindowGroup {
             RealityKitView()
+                .edgesIgnoringSafeArea(.all)
         }
     }
 }
