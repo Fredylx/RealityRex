@@ -13,33 +13,21 @@ struct SplashScreenView: View {
 
     var body: some View {
         if isActive {
-            RealityKitView()
-                .edgesIgnoringSafeArea(.all)
+            MainARView() // ✅ use the view that contains the overlay + ARView
         } else {
             ZStack {
-                Color.black
+                Color.green
                     .edgesIgnoringSafeArea(.all)
 
-                VStack(spacing: 20) {
-//                    Image("rex_logo")
-                    Image(systemName: "tortoise.fill") // 🔁 until logo is ready
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 150, height: 150)
-                        .opacity(logoOpacity)
-                        .shadow(radius: 10)
-
-                    Text("RealityRex")
-                        .font(.system(size: 32, weight: .bold, design: .rounded))
-                        .foregroundColor(.white)
-                        .opacity(logoOpacity)
-                }
+                Text("RealityRex")
+                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .opacity(logoOpacity)
             }
             .onAppear {
-                withAnimation(.easeIn(duration: 1.0)) {
+                withAnimation(.easeIn(duration: 0.8)) {
                     logoOpacity = 1.0
                 }
-
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                     withAnimation {
                         isActive = true

@@ -61,10 +61,10 @@ class RexData {
         
         guard let bodyResourceColor = bodyResourceColor else { return material }
         let baseColor = MaterialParameters.Texture(bodyResourceColor)
-        material.baseColor = .init(tint: .gray) // ✅ fallback color
+//        material.baseColor = .init(tint: .gray) // ✅ fallback color
 //        material.baseColor = .color(.gray)
 //        material.baseColor = .color(UIColor.gray)
-//        material.baseColor = .init(texture: baseColor)
+        material.baseColor = .init(texture: baseColor)
 //        var material = PhysicallyBasedMaterial()
 //
 //        if let bodyResourceColor = bodyResourceColor {
@@ -171,7 +171,7 @@ class RexData {
             let result = try Data(contentsOf: url)
             return result
         } catch let error {
-            print("Failed to load \(fileName).\(fileExtension)")
+            print("\(error): Failed to load \(fileName).\(fileExtension)")
             return nil
         }
     }

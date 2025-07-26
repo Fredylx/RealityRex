@@ -42,7 +42,8 @@ class RexObject {
         let frameCount = bodyFrames.count
         guard frameCount > 0 else { return }
 
-        frame += deltaTime * 30.0
+        frame += deltaTime * 25.0 // ← THIS is your walking speed
+        // frames per second
         frame.formTruncatingRemainder(dividingBy: Double(frameCount))
 
         let frameIndex = Int(frame)

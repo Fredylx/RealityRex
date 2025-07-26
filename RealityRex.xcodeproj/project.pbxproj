@@ -349,6 +349,9 @@
 		0D93FD3729DC53AC00DE18B5 /* rex_spikes_indices.dat in Resources */ = {isa = PBXBuildFile; fileRef = 0D93FBE729DC53AB00DE18B5 /* rex_spikes_indices.dat */; };
 		0D93FD3929DC540F00DE18B5 /* RexData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D93FD3829DC540F00DE18B5 /* RexData.swift */; };
 		0D9509B029E5B6940068F8FB /* RexObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D9509AF29E5B6940068F8FB /* RexObject.swift */; };
+		FD66F0442E330DA600525D18 /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD66F0432E330DA400525D18 /* SplashScreenView.swift */; };
+		FD66F0462E34176800525D18 /* InstructionOverlayView.swift in Resources */ = {isa = PBXBuildFile; fileRef = FD66F0452E34176800525D18 /* InstructionOverlayView.swift */; };
+		FD66F0482E341D6400525D18 /* MainARView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD66F0472E341D6000525D18 /* MainARView.swift */; };
 		FDE77ABF2DF40C58001C955A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FDE77ABD2DF40C58001C955A /* Preview Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -696,6 +699,9 @@
 		0D93FBE729DC53AB00DE18B5 /* rex_spikes_indices.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = rex_spikes_indices.dat; sourceTree = "<group>"; };
 		0D93FD3829DC540F00DE18B5 /* RexData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RexData.swift; sourceTree = "<group>"; };
 		0D9509AF29E5B6940068F8FB /* RexObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RexObject.swift; sourceTree = "<group>"; };
+		FD66F0432E330DA400525D18 /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
+		FD66F0452E34176800525D18 /* InstructionOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructionOverlayView.swift; sourceTree = "<group>"; };
+		FD66F0472E341D6000525D18 /* MainARView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainARView.swift; sourceTree = "<group>"; };
 		FDE77ABD2DF40C58001C955A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -735,9 +741,12 @@
 				0D93FA7929DC4E9B00DE18B5 /* RealityRexApp.swift */,
 				0D93FA7D29DC4E9E00DE18B5 /* Assets.xcassets */,
 				0D93FA8729DC502900DE18B5 /* RealityKitView.swift */,
+				FD66F0452E34176800525D18 /* InstructionOverlayView.swift */,
 				0D93FA8929DC524A00DE18B5 /* RexView.swift */,
 				0D93FD3829DC540F00DE18B5 /* RexData.swift */,
 				0D9509AF29E5B6940068F8FB /* RexObject.swift */,
+				FD66F0432E330DA400525D18 /* SplashScreenView.swift */,
+				FD66F0472E341D6000525D18 /* MainARView.swift */,
 			);
 			path = RealityRex;
 			sourceTree = "<group>";
@@ -1421,6 +1430,7 @@
 				0D93FC4729DC53AC00DE18B5 /* rex_eye_right_frame_28_positions.dat in Resources */,
 				0D93FC4C29DC53AC00DE18B5 /* rex_eye_right_frame_0_positions.dat in Resources */,
 				0D93FC2D29DC53AB00DE18B5 /* rex_eye_left_frame_11_normals.dat in Resources */,
+				FD66F0462E34176800525D18 /* InstructionOverlayView.swift in Resources */,
 				0D93FCDC29DC53AC00DE18B5 /* rex_body_frame_15_normals.dat in Resources */,
 				0D93FCD729DC53AC00DE18B5 /* rex_body_frame_16_normals.dat in Resources */,
 				0D93FCD129DC53AC00DE18B5 /* rex_body_frame_21_normals.dat in Resources */,
@@ -1599,6 +1609,8 @@
 				0D93FD3929DC540F00DE18B5 /* RexData.swift in Sources */,
 				0D93FA7A29DC4E9B00DE18B5 /* RealityRexApp.swift in Sources */,
 				0D93FA8829DC502900DE18B5 /* RealityKitView.swift in Sources */,
+				FD66F0482E341D6400525D18 /* MainARView.swift in Sources */,
+				FD66F0442E330DA600525D18 /* SplashScreenView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

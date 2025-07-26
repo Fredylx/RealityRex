@@ -12,26 +12,15 @@ import ARKit
 
 struct RealityKitView: UIViewRepresentable {
     func makeUIView(context: Context) -> ARView {
-        let arView = ARView()
-        
+        let arView = ARView(frame: .zero)
+
         // AR Configuration
         let config = ARWorldTrackingConfiguration()
         config.planeDetection = [.horizontal]
         config.environmentTexturing = .automatic
-        arView.session.run(config)
-        
-        // Debug options
-//        arView.debugOptions = [.showAnchorGeometry, .showAnchorOrigins, .showFeaturePoints]
+        arView.session.run(config) // ✅ Must be run before coaching overlay
 
-//        arView.debugOptions = []
-        #if DEBUG
-        arView.debugOptions = [.showAnchorGeometry, .showAnchorOrigins, .showFeaturePoints]
-        #else
-        arView.debugOptions = []
-        #endif
-
-
-        // RexView for AR object interaction
+        // Add rexView first
         let rexView = RexView(arView: arView)
         rexView.translatesAutoresizingMaskIntoConstraints = false
         arView.addSubview(rexView)
@@ -41,19 +30,24 @@ struct RealityKitView: UIViewRepresentable {
             rexView.topAnchor.constraint(equalTo: arView.topAnchor),
             rexView.bottomAnchor.constraint(equalTo: arView.bottomAnchor)
         ])
-        
-        // Coaching Overlay
-        let coachingOverlayView = ARCoachingOverlayView()
-        coachingOverlayView.translatesAutoresizingMaskIntoConstraints = false
-        arView.addSubview(coachingOverlayView)
+
+        // ✅ Now add coaching overlay LAST to stay on top
+        let coachingOverlay = ARCoachingOverlayView()
+        coachingOverlay.session = arView.session
+        coachingOverlay.activatesAutomatically = true
+        coachingOverlay.goal = .horizontalPlane
+        coachingOverlay.translatesAutoresizingMaskIntoConstraints = false
+        arView.addSubview(coachingOverlay)
+
         NSLayoutConstraint.activate([
-            coachingOverlayView.leadingAnchor.constraint(equalTo: arView.leadingAnchor),
-            coachingOverlayView.trailingAnchor.constraint(equalTo: arView.trailingAnchor),
-            coachingOverlayView.topAnchor.constraint(equalTo: arView.topAnchor),
-            coachingOverlayView.bottomAnchor.constraint(equalTo: arView.bottomAnchor)
+            coachingOverlay.leadingAnchor.constraint(equalTo: arView.leadingAnchor),
+            coachingOverlay.trailingAnchor.constraint(equalTo: arView.trailingAnchor),
+            coachingOverlay.topAnchor.constraint(equalTo: arView.topAnchor),
+            coachingOverlay.bottomAnchor.constraint(equalTo: arView.bottomAnchor)
         ])
-        coachingOverlayView.session = arView.session
-        coachingOverlayView.goal = .horizontalPlane
+
+        // You can hide debugOptions now
+        arView.debugOptions = []
 
         // Clear Button
         let clearButton = UIButton(type: .system)
