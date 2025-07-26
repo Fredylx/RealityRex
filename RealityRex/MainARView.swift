@@ -12,17 +12,48 @@ import RealityKit
 struct MainARView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var arViewRef: ARView?
-
+    @State private var showInstructions = true
+    
     var body: some View {
         ZStack {
             RealityKitView(arViewRef: $arViewRef)
                 .ignoresSafeArea()
-
-            InstructionOverlayView()
-        }
-        .onChange(of: scenePhase) { newPhase in
-            if newPhase == .background {
-                arViewRef?.session.pause()
+            
+            if showInstructions {
+                InstructionOverlayView {
+                    showInstructions = false
+                }
+            }
+            
+            VStack {
+                HStack {
+                    Spacer()
+                    
+                    VStack(spacing: 12) {
+                        // Info Button
+                        Button(action: {
+                            withAnimation {
+                                showInstructions = true
+                            }
+                        }) {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.white)
+                                .frame(width: 80, height: 36)
+                                .background(Color.black.opacity(0.6))
+                                .cornerRadius(10)
+                                .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                        }
+                        
+                        // Clear All button (if you want to move it here too, otherwise leave it in RealityKitView)
+                        // Button("Clear All") { ... }
+                    }
+                    
+                    .padding(.trailing, 16)
+                    .padding(.top, 16)
+                }
+                
+                Spacer()
             }
         }
     }
@@ -31,6 +62,7 @@ struct MainARView: View {
 
 /// Displays initial user guidance steps over the AR experience.
 struct InstructionOverlayView: View {
+    let onFinish: () -> Void
     @State private var visible = true
 
     var body: some View {
@@ -39,12 +71,11 @@ struct InstructionOverlayView: View {
                 instructionContainer
                     .onAppear(perform: hideAfterDelay)
                     .transition(.opacity)
-                    .background(Color.black.opacity(0.001)) // ⬅️ passthrough
+                    .background(Color.black.opacity(0.001))
             }
         }
     }
 
-    /// Combined instruction UI
     private var instructionContainer: some View {
         VStack(spacing: 16) {
             Spacer()
@@ -57,10 +88,8 @@ struct InstructionOverlayView: View {
         }
         .padding(.horizontal)
         .frame(maxWidth: .infinity)
-        .animation(.easeInOut, value: visible)
     }
 
-    /// Instruction bubble UI
     private func instructionBlock(step: String, text: String) -> some View {
         HStack(spacing: 12) {
             Text(step)
@@ -79,12 +108,12 @@ struct InstructionOverlayView: View {
         .cornerRadius(12)
     }
 
-    /// Auto-dismiss the overlay after 3 seconds
     private func hideAfterDelay() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
             withAnimation {
                 visible = false
             }
+            onFinish()
         }
     }
 }
