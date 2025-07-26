@@ -11,9 +11,7 @@ import SwiftUI
 struct RealityRexApp: App {
     var body: some Scene {
         WindowGroup {
-            MainARView()
-//            RealityKitView()
-//                .edgesIgnoringSafeArea(.all)
+            SplashScreenView()
         }
     }
 }

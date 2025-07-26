@@ -7,32 +7,41 @@
 
 import SwiftUI
 
+/// Intro splash screen that fades in the app title, then launches the main AR experience.
 struct SplashScreenView: View {
-    @State private var isActive = false
+    @State private var showMainAR = false
     @State private var logoOpacity = 0.0
 
     var body: some View {
-        if isActive {
-            MainARView() // ✅ use the view that contains the overlay + ARView
-        } else {
-            ZStack {
-                Color.green
-                    .edgesIgnoringSafeArea(.all)
-
-                Text("RealityRex")
-                    .font(.system(size: 40, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
-                    .opacity(logoOpacity)
+        Group {
+            if showMainAR {
+                MainARView()
+            } else {
+                splashContent
             }
-            .onAppear {
-                withAnimation(.easeIn(duration: 0.8)) {
-                    logoOpacity = 1.0
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                    withAnimation {
-                        isActive = true
-                    }
-                }
+        }
+        .onAppear(perform: runSplashSequence)
+    }
+
+    private var splashContent: some View {
+        ZStack {
+            Color.green.ignoresSafeArea()
+
+            Text("RealityRex")
+                .font(.system(size: 40, weight: .bold, design: .rounded))
+                .foregroundColor(.white)
+                .opacity(logoOpacity)
+        }
+    }
+
+    private func runSplashSequence() {
+        withAnimation(.easeIn(duration: 0.8)) {
+            logoOpacity = 1.0
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            withAnimation {
+                showMainAR = true
             }
         }
     }

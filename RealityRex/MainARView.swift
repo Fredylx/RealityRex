@@ -6,48 +6,62 @@
 //
 
 import SwiftUI
+import RealityKit
 
+/// The main AR container view that layers the RealityKit scene with onboarding instructions.
 struct MainARView: View {
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var arViewRef: ARView?
+
     var body: some View {
         ZStack {
-            RealityKitView()
-                .edgesIgnoringSafeArea(.all)
+            RealityKitView(arViewRef: $arViewRef)
+                .ignoresSafeArea()
 
-            InstructionOverlayView() // ✅ this sits above AR
+            InstructionOverlayView()
+        }
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .background {
+                arViewRef?.session.pause()
+            }
         }
     }
 }
 
+
+/// Displays initial user guidance steps over the AR experience.
 struct InstructionOverlayView: View {
-    @State private var step = 1
     @State private var visible = true
 
     var body: some View {
-        if visible {
-            VStack(spacing: 24) {
-                Spacer()
-
-                Group {
-                    if step == 1 {
-                        instructionBlock(step: "1", text: "Scan the room")
-                    } else if step == 2 {
-                        instructionBlock(step: "2", text: "Tap to place")
-                    }
-                }
-                .transition(.opacity)
-                .animation(.easeInOut, value: step)
-
-                Spacer()
-            }
-            .frame(maxWidth: .infinity)
-            .background(Color.black.opacity(0.001)) // Non-blocking touch passthrough
-            .onAppear {
-                advanceSteps()
+        Group {
+            if visible {
+                instructionContainer
+                    .onAppear(perform: hideAfterDelay)
+                    .transition(.opacity)
+                    .background(Color.black.opacity(0.001)) // ⬅️ passthrough
             }
         }
     }
 
-    func instructionBlock(step: String, text: String) -> some View {
+    /// Combined instruction UI
+    private var instructionContainer: some View {
+        VStack(spacing: 16) {
+            Spacer()
+
+            instructionBlock(step: "1", text: "Scan the room")
+            instructionBlock(step: "2", text: "Tap to place T-Rex")
+            instructionBlock(step: "3", text: "Tap and hold to delete")
+
+            Spacer()
+        }
+        .padding(.horizontal)
+        .frame(maxWidth: .infinity)
+        .animation(.easeInOut, value: visible)
+    }
+
+    /// Instruction bubble UI
+    private func instructionBlock(step: String, text: String) -> some View {
         HStack(spacing: 12) {
             Text(step)
                 .font(.headline)
@@ -65,16 +79,11 @@ struct InstructionOverlayView: View {
         .cornerRadius(12)
     }
 
-    func advanceSteps() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+    /// Auto-dismiss the overlay after 3 seconds
+    private func hideAfterDelay() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4.5) {
             withAnimation {
-                step = 2
-            }
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                withAnimation {
-                    visible = false
-                }
+                visible = false
             }
         }
     }
