@@ -58,10 +58,10 @@ class RexView: UIView, UIGestureRecognizerDelegate {
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
         let rotate = UIRotationGestureRecognizer(target: self, action: #selector(handleRotation(_:)))
         let pinch = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:)))
-        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
-        longPress.minimumPressDuration = 1.0
+        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
+        doubleTap.numberOfTapsRequired = 2
 
-        [pan, rotate, pinch, longPress].forEach {
+        [pan, rotate, pinch, doubleTap].forEach {
             $0.delegate = self
             self.addGestureRecognizer($0)
         }
@@ -86,6 +86,14 @@ class RexView: UIView, UIGestureRecognizerDelegate {
         guard !isOverlap(to: worldPos) else { return }
 
         let anchor = AnchorEntity(world: result.worldTransform)
+
+        // Add a grass ground plane under the anchor so dinos appear on grass
+        if let grass = makeGrassPlane() {
+            // Position the grass plane slightly below the hit point so it sits under the rex feet
+            grass.position = SIMD3<Float>(0, -0.01, 0)
+            anchor.addChild(grass)
+        }
+
         let rex = RexObject(rexData: rexData, anchor: anchor)
         rex.bodyFrames.forEach { anchor.addChild($0) }
 
@@ -93,22 +101,64 @@ class RexView: UIView, UIGestureRecognizerDelegate {
         dinosaurs.append(rex)
     }
 
-    private func isOverlap(to point: SIMD3<Float>, threshold: Float = 0.5) -> Bool {
+    private func isOverlap(to point: SIMD3<Float>, threshold: Float = 0.25) -> Bool {
+        // Allow a little overlap by using a smaller threshold
         dinosaurs.contains {
             guard let pos = $0.anchor?.position(relativeTo: nil) else { return false }
             return simd_distance(pos, point) < threshold
         }
     }
 
+    // MARK: - Grass Plane
+
+    /// Creates a square grass plane ModelEntity sized to cover placement area.
+    /// Uses an asset image from the app's asset catalog. If you want a different
+    /// grass texture, add it to Assets.xcassets and update the UIImage name below.
+    private func makeGrassPlane(size: Float = 1.5) -> ModelEntity? {
+    // Create a simple plane mesh and orient it horizontally
+        let mesh = MeshResource.generatePlane(width: size, depth: size)
+
+        // Try loading a grass texture from Assets. Fall back to a simple green material.
+        // Always use a solid dark green for the ground
+    var material: Material
+    var mat = PhysicallyBasedMaterial()
+    mat.baseColor = .init(tint: .init(_colorLiteralRed: 0.1, green: 0.4, blue: 0.1, alpha: 1.0))
+    mat.roughness = .init(1.0)
+    material = mat
+
+        let plane = ModelEntity(mesh: mesh, materials: [material])
+        // Rotate plane so its normal faces up
+        plane.transform.rotation = simd_quatf(angle: -.pi/2, axis: [1, 0, 0])
+        plane.generateCollisionShapes(recursive: false)
+        plane.name = "grassPlane"
+
+        // Optional: Add a tap icon overlay using a child entity (correct MaterialColorParameter usage)
+        #if canImport(UIKit)
+        if let tapIcon = UIImage(systemName: "hand.point.up.left.fill") {
+            if let tapTex = try? TextureResource.generate(from: tapIcon.cgImage!, options: .init(semantic: .color)) {
+                let iconMesh = MeshResource.generatePlane(width: size * 0.2, depth: size * 0.2)
+                var iconMat = UnlitMaterial()
+                iconMat.baseColor = .init(_colorLiteralRed: 0.5, green: 1, blue: 0.2, alpha: 1.0)
+                let iconEntity = ModelEntity(mesh: iconMesh, materials: [iconMat])
+                iconEntity.position = SIMD3<Float>(0, 0.001, 0)
+                plane.addChild(iconEntity)
+            }
+        }
+        #endif
+
+        return plane
+    }
+
     // MARK: - Gesture Handlers
 
-    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
-        guard gesture.state == .began else { return }
-        let location = gesture.location(in: arView)
 
+    // Double-tap to delete dino
+    @objc private func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
+        let location = gesture.location(in: arView)
         if let hitEntity = arView.entity(at: location) {
             for (i, rex) in dinosaurs.enumerated() where rex.bodyFrames.contains(where: { $0 === hitEntity }) {
-                showDeleteConfirmation(for: rex, at: i)
+                rex.anchor?.removeFromParent()
+                dinosaurs.remove(at: i)
                 break
             }
         }

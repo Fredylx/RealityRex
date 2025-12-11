@@ -21,6 +21,8 @@ struct InstructionOverlayView: View {
                         instructionBlock(step: "1", text: "Scan the room")
                     } else if step == 2 {
                         instructionBlock(step: "2", text: "Tap to place")
+                    } else if step == 3 {
+                        instructionBlock(step: "3", text: "Double-tap a dino to delete")
                     }
                 }
                 .transition(.opacity)
@@ -59,10 +61,14 @@ struct InstructionOverlayView: View {
             withAnimation {
                 step = 2
             }
-
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                 withAnimation {
-                    visible = false
+                    step = 3
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    withAnimation {
+                        visible = false
+                    }
                 }
             }
         }
