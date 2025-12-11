@@ -12,10 +12,16 @@ import Combine
 
 extension Notification.Name {
     static let clearAllDinos = Notification.Name("clearAllDinos")
+    static let placementFeedback = Notification.Name("placementFeedback")
 }
 
 /// View responsible for managing all AR content, gestures, and interactions in the scene.
 class RexView: UIView, UIGestureRecognizerDelegate {
+
+    private enum PlacementRules {
+        static let maxDinosaurs: Int = 14
+        static let overlapThreshold: Float = 0.25
+    }
 
     // MARK: - AR Scene State
     private var dinosaurs: [RexObject] = []
@@ -73,17 +79,26 @@ class RexView: UIView, UIGestureRecognizerDelegate {
 
     // MARK: - Touch to Place Dino
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard dinosaurs.count < 14 else { return }
+        guard dinosaurs.count < PlacementRules.maxDinosaurs else {
+            sendPlacementFeedback("Maximum dinos placed")
+            return
+        }
         guard let point = touches.first?.location(in: arView) else { return }
 
         let results = arView.raycast(from: point, allowing: .existingPlaneGeometry, alignment: .horizontal)
-        guard let result = results.first else { return }
+        guard let result = results.first else {
+            sendPlacementFeedback("Aim at a detected surface")
+            return
+        }
 
         let worldPos = SIMD3<Float>(result.worldTransform.columns.3.x,
                                     result.worldTransform.columns.3.y,
                                     result.worldTransform.columns.3.z)
 
-        guard !isOverlap(to: worldPos) else { return }
+        guard !isOverlap(to: worldPos) else {
+            sendPlacementFeedback("Too close to another dino")
+            return
+        }
 
         let anchor = AnchorEntity(world: result.worldTransform)
 
@@ -101,7 +116,7 @@ class RexView: UIView, UIGestureRecognizerDelegate {
         dinosaurs.append(rex)
     }
 
-    private func isOverlap(to point: SIMD3<Float>, threshold: Float = 0.25) -> Bool {
+    private func isOverlap(to point: SIMD3<Float>, threshold: Float = PlacementRules.overlapThreshold) -> Bool {
         // Allow a little overlap by using a smaller threshold
         dinosaurs.contains {
             guard let pos = $0.anchor?.position(relativeTo: nil) else { return false }
@@ -111,20 +126,18 @@ class RexView: UIView, UIGestureRecognizerDelegate {
 
     // MARK: - Grass Plane
 
-    /// Creates a square grass plane ModelEntity sized to cover placement area.
-    /// Uses an asset image from the app's asset catalog. If you want a different
-    /// grass texture, add it to Assets.xcassets and update the UIImage name below.
+    /// Creates a square ground plane ModelEntity sized to cover placement area.
+    /// Uses a solid dark green material by default so users can see placement space.
     private func makeGrassPlane(size: Float = 1.5) -> ModelEntity? {
     // Create a simple plane mesh and orient it horizontally
         let mesh = MeshResource.generatePlane(width: size, depth: size)
 
-        // Try loading a grass texture from Assets. Fall back to a simple green material.
-        // Always use a solid dark green for the ground
-    var material: Material
-    var mat = PhysicallyBasedMaterial()
-    mat.baseColor = .init(tint: .init(_colorLiteralRed: 0.1, green: 0.4, blue: 0.1, alpha: 1.0))
-    mat.roughness = .init(1.0)
-    material = mat
+        // Solid dark green ground material to make tap targets visible
+        var material: Material
+        var mat = PhysicallyBasedMaterial()
+        mat.baseColor = .init(tint: .init(_colorLiteralRed: 0.1, green: 0.4, blue: 0.1, alpha: 1.0))
+        mat.roughness = .init(1.0)
+        material = mat
 
         let plane = ModelEntity(mesh: mesh, materials: [material])
         // Rotate plane so its normal faces up
@@ -259,20 +272,8 @@ class RexView: UIView, UIGestureRecognizerDelegate {
 
     // MARK: - Utility
 
-    private func showDeleteConfirmation(for rex: RexObject, at index: Int) {
-        guard let vc = self.window?.rootViewController else { return }
-
-        let alert = UIAlertController(title: "Remove Dino?",
-                                      message: "Are you sure you want to delete this T-Rex?",
-                                      preferredStyle: .alert)
-
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { _ in
-            rex.anchor?.removeFromParent()
-            self.dinosaurs.remove(at: index)
-        })
-
-        vc.present(alert, animated: true)
+    private func sendPlacementFeedback(_ message: String) {
+        NotificationCenter.default.post(name: .placementFeedback, object: nil, userInfo: ["message": message])
     }
 
     @objc private func clearAllDinos() {

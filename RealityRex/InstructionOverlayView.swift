@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct InstructionOverlayView: View {
+    /// Called when the overlay has finished showing all steps.
+    var onFinish: () -> Void = {}
+
     @State private var step = 1
     @State private var visible = true
 
@@ -32,9 +35,7 @@ struct InstructionOverlayView: View {
             }
             .frame(maxWidth: .infinity)
             .background(Color.black.opacity(0.001)) // Non-blocking touch passthrough
-            .onAppear {
-                advanceSteps()
-            }
+            .onAppear(perform: advanceSteps)
         }
     }
 
@@ -69,6 +70,7 @@ struct InstructionOverlayView: View {
                     withAnimation {
                         visible = false
                     }
+                    onFinish()
                 }
             }
         }
