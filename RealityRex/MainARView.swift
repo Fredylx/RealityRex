@@ -13,18 +13,30 @@ struct MainARView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var arViewRef: ARView?
     @State private var showInstructions = true
+    @State private var placementMessage: String?
     
     var body: some View {
         ZStack {
             RealityKitView(arViewRef: $arViewRef)
                 .ignoresSafeArea()
-            
-            if showInstructions {
-                InstructionOverlayView {
-                    showInstructions = false
+                .onReceive(NotificationCenter.default.publisher(for: .placementFeedback)) { output in
+                    if let message = output.userInfo?["message"] as? String {
+                        withAnimation {
+                            placementMessage = message
+                        }
+
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            withAnimation {
+                                placementMessage = nil
+                            }
+                        }
+                    }
                 }
+
+            if showInstructions {
+                InstructionOverlayView { showInstructions = false }
             }
-            
+
             VStack {
                 HStack {
                     Spacer()
@@ -52,68 +64,27 @@ struct MainARView: View {
                     .padding(.trailing, 16)
                     .padding(.top, 16)
                 }
-                
+
                 Spacer()
             }
-        }
-    }
-}
 
-
-/// Displays initial user guidance steps over the AR experience.
-struct InstructionOverlayView: View {
-    let onFinish: () -> Void
-    @State private var visible = true
-
-    var body: some View {
-        Group {
-            if visible {
-                instructionContainer
-                    .onAppear(perform: hideAfterDelay)
-                    .transition(.opacity)
-                    .background(Color.black.opacity(0.001))
+            if let placementMessage {
+                VStack {
+                    Spacer()
+                    Text(placementMessage)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(Color.black.opacity(0.75))
+                        .cornerRadius(12)
+                        .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
+                        .padding(.bottom, 32)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .allowsHitTesting(false)
             }
-        }
-    }
-
-    private var instructionContainer: some View {
-        VStack(spacing: 16) {
-            Spacer()
-
-            instructionBlock(step: "1", text: "Scan the room")
-            instructionBlock(step: "2", text: "Tap to place T-Rex")
-            instructionBlock(step: "3", text: "Tap and hold to delete")
-
-            Spacer()
-        }
-        .padding(.horizontal)
-        .frame(maxWidth: .infinity)
-    }
-
-    private func instructionBlock(step: String, text: String) -> some View {
-        HStack(spacing: 12) {
-            Text(step)
-                .font(.headline)
-                .foregroundColor(.white)
-                .frame(width: 32, height: 32)
-                .background(Color.black)
-                .clipShape(Circle())
-
-            Text(text)
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(.white)
-        }
-        .padding()
-        .background(Color.black.opacity(0.75))
-        .cornerRadius(12)
-    }
-
-    private func hideAfterDelay() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            withAnimation {
-                visible = false
-            }
-            onFinish()
         }
     }
 }
