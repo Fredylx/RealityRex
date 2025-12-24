@@ -1739,7 +1739,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"RealityRex/Preview Content\"";
-				DEVELOPMENT_TEAM = JXP778RY3Z;
+				DEVELOPMENT_TEAM = 3TRHG5UZ93;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Use RealityKit to render a 3D dinosaur scene.";
@@ -1753,7 +1753,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.fredy.lopez.RealityRex1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.codebodydynamics.realityrex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -1769,7 +1769,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"RealityRex/Preview Content\"";
-				DEVELOPMENT_TEAM = JXP778RY3Z;
+				DEVELOPMENT_TEAM = 3TRHG5UZ93;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Use RealityKit to render a 3D dinosaur scene.";
@@ -1783,7 +1783,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.fredy.lopez.RealityRex1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.codebodydynamics.realityrex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
