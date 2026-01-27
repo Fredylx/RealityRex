@@ -27,9 +27,16 @@ struct SplashScreenView: View {
         ZStack {
             Color.green.ignoresSafeArea()
 
-            Text("RealityRex")
-                .font(.system(size: 40, weight: .bold, design: .rounded))
-                .foregroundColor(.white)
+            Image("AppLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 200, height: 200)
+                .clipShape(Circle())
+                .overlay(
+                    Circle()
+                        .stroke(Color.white.opacity(0.3), lineWidth: 4)
+                )
+                .shadow(radius: 12)
                 .opacity(logoOpacity)
         }
     }
