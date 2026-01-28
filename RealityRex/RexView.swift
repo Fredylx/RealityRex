@@ -30,7 +30,7 @@ class RexView: UIView, UIGestureRecognizerDelegate {
 
     private var updateCancellable: Cancellable?
 
-    let arView: ARView
+    weak var arView: ARView?
     let rexData: RexData
 
     // MARK: - Init
@@ -73,6 +73,7 @@ class RexView: UIView, UIGestureRecognizerDelegate {
 
     // MARK: - Touch to Place Dino
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let arView = arView else { return }
         guard dinosaurs.count < 14 else { return }
         guard let point = touches.first?.location(in: arView) else { return }
 
@@ -154,6 +155,7 @@ class RexView: UIView, UIGestureRecognizerDelegate {
 
     // Double-tap to delete dino
     @objc private func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
+        guard let arView = arView else { return }
         let location = gesture.location(in: arView)
         if let hitEntity = arView.entity(at: location) {
             for (i, rex) in dinosaurs.enumerated() where rex.bodyFrames.contains(where: { $0 === hitEntity }) {
@@ -165,6 +167,7 @@ class RexView: UIView, UIGestureRecognizerDelegate {
     }
 
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
+        guard let arView = arView else { return }
         let location = gesture.location(in: arView)
 
         switch gesture.state {
@@ -205,6 +208,7 @@ class RexView: UIView, UIGestureRecognizerDelegate {
     }
 
     @objc private func handleRotation(_ gesture: UIRotationGestureRecognizer) {
+        guard let arView = arView else { return }
         let location = gesture.location(in: arView)
 
         switch gesture.state {
@@ -232,6 +236,7 @@ class RexView: UIView, UIGestureRecognizerDelegate {
     }
 
     @objc private func handlePinch(_ gesture: UIPinchGestureRecognizer) {
+        guard let arView = arView else { return }
         let location = gesture.location(in: arView)
 
         switch gesture.state {
@@ -283,6 +288,7 @@ class RexView: UIView, UIGestureRecognizerDelegate {
     // MARK: - Scene Update
 
     private func subscribeToSceneUpdates() {
+        guard let arView = arView else { return }
         updateCancellable = arView.scene.subscribe(to: SceneEvents.Update.self) { [weak self] delta in
             self?.dinosaurs.forEach { $0.update(deltaTime: delta.deltaTime) }
         }
