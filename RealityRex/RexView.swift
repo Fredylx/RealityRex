@@ -45,12 +45,13 @@ class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
     private var isAutoPlacing = false
     private var pendingAutoPlacementTransform: simd_float4x4?
     private var autoPlacedRex: RexObject?
-    private var userPlacementEnabled = false
+    private var userPlacementEnabled = true
     private var externalPlacementEnabled = false
     private var planeVisuals: [UUID: ModelEntity] = [:]
     private var planeAnchors: [UUID: AnchorEntity] = [:]
     private var planeDetectionTimeoutWorkItem: DispatchWorkItem?
     private var autoPlacementTimeoutWorkItem: DispatchWorkItem?
+    private var freeFirstPlacementUsed = false
 
     weak var arView: ARView?
     let rexData: RexData
@@ -114,9 +115,9 @@ class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
     // MARK: - Touch to Place Dino
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let arView = arView else { return }
-        guard userPlacementEnabled, externalPlacementEnabled else {
+        guard externalPlacementEnabled else {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
-            DebugLog.log("Touch ignored: auto placement in progress", category: "RexView")
+            DebugLog.log("Touch ignored: placement not yet enabled", category: "RexView")
             return
         }
         guard RexData.shared.isReady else {
@@ -125,7 +126,7 @@ class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
             DebugLog.log("Touch ignored: RexData not ready", category: "RexView")
             return
         }
-        guard dinosaurs.count < maxDinos else {
+        guard effectiveDinoCount() < maxDinos else {
             UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
             NotificationCenter.default.post(name: .dinoLimitReached, object: nil)
             DebugLog.log("Touch ignored: limit reached", category: "RexView")
@@ -175,6 +176,9 @@ class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
             arView.scene.addAnchor(anchor)
         }
         dinosaurs.append(rex)
+        if !freeFirstPlacementUsed {
+            freeFirstPlacementUsed = true
+        }
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         notifyCountChanged()
         DebugLog.log("Placed rex. Count=\(dinosaurs.count)", category: "RexView")
@@ -226,7 +230,7 @@ class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
             rex = RexObject(rexData: rexData, anchor: anchor)
             rex.bodyFrames.forEach { anchor.addChild($0) }
         }
-        rex.setVisible(false)
+        rex.setVisible(true)
 
         if rex.anchor?.scene == nil {
             arView.scene.addAnchor(anchor)
@@ -238,7 +242,6 @@ class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
             self.autoPlacedRex?.anchor?.removeFromParent()
             self.autoPlacedRex = nil
             self.isAutoPlacing = false
-            self.userPlacementEnabled = true
             NotificationCenter.default.post(name: .autoPlacementFinished, object: nil)
             NotificationCenter.default.post(
                 name: .autoPlacementStatus,
@@ -453,7 +456,15 @@ class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
     }
 
     private func notifyCountChanged() {
-        NotificationCenter.default.post(name: .dinoCountChanged, object: dinosaurs.count)
+        NotificationCenter.default.post(name: .dinoCountChanged, object: effectiveDinoCount())
+    }
+
+    private func effectiveDinoCount() -> Int {
+        let raw = dinosaurs.count
+        if freeFirstPlacementUsed, raw > 0 {
+            return raw - 1
+        }
+        return raw
     }
 
     private func warmupIfPossible() {
