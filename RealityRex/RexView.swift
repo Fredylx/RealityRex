@@ -12,10 +12,19 @@ import Combine
 
 extension Notification.Name {
     static let clearAllDinos = Notification.Name("clearAllDinos")
+    static let resetARSession = Notification.Name("resetARSession")
+    static let dinoCountChanged = Notification.Name("dinoCountChanged")
+    static let dinoLimitReached = Notification.Name("dinoLimitReached")
+    static let rexDataReady = Notification.Name("rexDataReady")
+    static let dinoLoadingTap = Notification.Name("dinoLoadingTap")
+    static let rexDataProgress = Notification.Name("rexDataProgress")
+    static let autoPlacementStarted = Notification.Name("autoPlacementStarted")
+    static let autoPlacementFinished = Notification.Name("autoPlacementFinished")
+    static let autoPlacementStatus = Notification.Name("autoPlacementStatus")
 }
 
 /// View responsible for managing all AR content, gestures, and interactions in the scene.
-class RexView: UIView, UIGestureRecognizerDelegate {
+class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
 
     // MARK: - AR Scene State
     private var dinosaurs: [RexObject] = []
@@ -29,19 +38,46 @@ class RexView: UIView, UIGestureRecognizerDelegate {
     private var initialScale: SIMD3<Float>?
 
     private var updateCancellable: Cancellable?
+    private var warmupObserver: NSObjectProtocol?
+    private var didWarmup = false
+    private var prewarmedRex: RexObject?
+    private var didAutoPlace = false
+    private var isAutoPlacing = false
+    private var pendingAutoPlacementTransform: simd_float4x4?
+    private var autoPlacedRex: RexObject?
+    private var userPlacementEnabled = false
+    private var externalPlacementEnabled = false
+    private var planeVisuals: [UUID: ModelEntity] = [:]
+    private var planeAnchors: [UUID: AnchorEntity] = [:]
+    private var planeDetectionTimeoutWorkItem: DispatchWorkItem?
+    private var autoPlacementTimeoutWorkItem: DispatchWorkItem?
 
     weak var arView: ARView?
     let rexData: RexData
+    private let maxDinos = 14
+    private var placementGestureStart: CFAbsoluteTime?
 
     // MARK: - Init
     required init(arView: ARView) {
         self.arView = arView
-        self.rexData = RexData()
+        self.rexData = RexData.shared
         super.init(frame: .zero)
 
+        DebugLog.log("RexView init", category: "RexView")
+        arView.session.delegate = self
         setupGestureRecognizers()
         subscribeToSceneUpdates()
         NotificationCenter.default.addObserver(self, selector: #selector(clearAllDinos), name: .clearAllDinos, object: nil)
+        schedulePlaneDetectionTimeout()
+        warmupIfPossible()
+        warmupObserver = NotificationCenter.default.addObserver(
+            forName: .rexDataReady,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.warmupIfPossible()
+            self?.tryAutoPlaceIfPossible()
+        }
     }
 
     required init?(coder: NSCoder) {
@@ -50,11 +86,15 @@ class RexView: UIView, UIGestureRecognizerDelegate {
 
     deinit {
         updateCancellable?.cancel()
+        if let warmupObserver = warmupObserver {
+            NotificationCenter.default.removeObserver(warmupObserver)
+        }
         NotificationCenter.default.removeObserver(self)
     }
 
     // MARK: - Gesture Setup
     private func setupGestureRecognizers() {
+        DebugLog.log("Setup gestures", category: "RexView")
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
         let rotate = UIRotationGestureRecognizer(target: self, action: #selector(handleRotation(_:)))
         let pinch = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:)))
@@ -74,17 +114,42 @@ class RexView: UIView, UIGestureRecognizerDelegate {
     // MARK: - Touch to Place Dino
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let arView = arView else { return }
-        guard dinosaurs.count < 14 else { return }
+        guard userPlacementEnabled, externalPlacementEnabled else {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            DebugLog.log("Touch ignored: auto placement in progress", category: "RexView")
+            return
+        }
+        guard RexData.shared.isReady else {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            NotificationCenter.default.post(name: .dinoLoadingTap, object: nil)
+            DebugLog.log("Touch ignored: RexData not ready", category: "RexView")
+            return
+        }
+        guard dinosaurs.count < maxDinos else {
+            UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+            NotificationCenter.default.post(name: .dinoLimitReached, object: nil)
+            DebugLog.log("Touch ignored: limit reached", category: "RexView")
+            return
+        }
         guard let point = touches.first?.location(in: arView) else { return }
 
         let results = arView.raycast(from: point, allowing: .existingPlaneGeometry, alignment: .horizontal)
-        guard let result = results.first else { return }
+        guard let result = results.first else {
+            DebugLog.log("Raycast failed: no result", category: "RexView")
+            return
+        }
 
         let worldPos = SIMD3<Float>(result.worldTransform.columns.3.x,
                                     result.worldTransform.columns.3.y,
                                     result.worldTransform.columns.3.z)
 
-        guard !isOverlap(to: worldPos) else { return }
+        guard !isOverlap(to: worldPos) else {
+            DebugLog.log("Placement overlap prevented", category: "RexView")
+            return
+        }
+
+        // Set start time for this placement gesture
+        placementGestureStart = CFAbsoluteTimeGetCurrent()
 
         let anchor = AnchorEntity(world: result.worldTransform)
 
@@ -95,11 +160,93 @@ class RexView: UIView, UIGestureRecognizerDelegate {
             anchor.addChild(grass)
         }
 
-        let rex = RexObject(rexData: rexData, anchor: anchor)
-        rex.bodyFrames.forEach { anchor.addChild($0) }
+        let rex: RexObject
+        if let cached = prewarmedRex, dinosaurs.isEmpty {
+            rex = cached
+            rex.resetForPlacement()
+            rex.anchor?.setTransformMatrix(result.worldTransform, relativeTo: nil)
+            DebugLog.log("Using prewarmed rex for placement", category: "RexView")
+        } else {
+            rex = RexObject(rexData: rexData, anchor: anchor)
+            rex.bodyFrames.forEach { anchor.addChild($0) }
+        }
 
-        arView.scene.addAnchor(anchor)
+        if rex.anchor?.scene == nil {
+            arView.scene.addAnchor(anchor)
+        }
         dinosaurs.append(rex)
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        notifyCountChanged()
+        DebugLog.log("Placed rex. Count=\(dinosaurs.count)", category: "RexView")
+
+        if let start = placementGestureStart {
+            let duration = CFAbsoluteTimeGetCurrent() - start
+            print("Placement gesture-to-dino duration: \(String(format: "%.3f", duration))s")
+            DebugLog.log("Placement gesture-to-dino duration: \(String(format: "%.3f", duration))s", category: "RexView")
+            placementGestureStart = nil
+        }
+    }
+
+    func setExternalPlacementEnabled(_ enabled: Bool) {
+        externalPlacementEnabled = enabled
+        DebugLog.log("External placement enabled=\(enabled)", category: "RexView")
+    }
+
+    // MARK: - Auto Placement
+
+    private func tryAutoPlaceIfPossible() {
+        guard !didAutoPlace,
+              !isAutoPlacing,
+              RexData.shared.isReady,
+              let arView = arView,
+              let transform = pendingAutoPlacementTransform else { return }
+
+        isAutoPlacing = true
+        NotificationCenter.default.post(name: .autoPlacementStarted, object: nil)
+        NotificationCenter.default.post(
+            name: .autoPlacementStatus,
+            object: nil,
+            userInfo: ["text": "Preparing your first dino..."]
+        )
+        scheduleAutoPlacementTimeout()
+
+        let anchor = AnchorEntity(world: transform)
+        if let grass = makeGrassPlane() {
+            grass.position = SIMD3<Float>(0, -0.01, 0)
+            anchor.addChild(grass)
+        }
+
+        let rex: RexObject
+        if let cached = prewarmedRex {
+            rex = cached
+            rex.resetForPlacement()
+            rex.anchor?.setTransformMatrix(transform, relativeTo: nil)
+            DebugLog.log("Auto placement using prewarmed rex", category: "RexView")
+        } else {
+            rex = RexObject(rexData: rexData, anchor: anchor)
+            rex.bodyFrames.forEach { anchor.addChild($0) }
+        }
+        rex.setVisible(false)
+
+        if rex.anchor?.scene == nil {
+            arView.scene.addAnchor(anchor)
+        }
+        autoPlacedRex = rex
+        didAutoPlace = true
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.autoPlacedRex?.anchor?.removeFromParent()
+            self.autoPlacedRex = nil
+            self.isAutoPlacing = false
+            self.userPlacementEnabled = true
+            NotificationCenter.default.post(name: .autoPlacementFinished, object: nil)
+            NotificationCenter.default.post(
+                name: .autoPlacementStatus,
+                object: nil,
+                userInfo: ["text": "Ready — tap to place!"]
+            )
+            DebugLog.log("Auto placement finished; user placement enabled", category: "RexView")
+        }
     }
 
     private func isOverlap(to point: SIMD3<Float>, threshold: Float = 0.25) -> Bool {
@@ -121,11 +268,8 @@ class RexView: UIView, UIGestureRecognizerDelegate {
 
         // Try loading a grass texture from Assets. Fall back to a simple green material.
         // Always use a solid dark green for the ground
-    var material: Material
-    var mat = PhysicallyBasedMaterial()
-    mat.baseColor = .init(tint: .init(_colorLiteralRed: 0.1, green: 0.4, blue: 0.1, alpha: 1.0))
-    mat.roughness = .init(1.0)
-    material = mat
+        let material = SimpleMaterial(color: UIColor(red: 0.1, green: 0.4, blue: 0.1, alpha: 1.0),
+                                      isMetallic: false)
 
         let plane = ModelEntity(mesh: mesh, materials: [material])
         // Rotate plane so its normal faces up
@@ -135,15 +279,15 @@ class RexView: UIView, UIGestureRecognizerDelegate {
 
         // Optional: Add a tap icon overlay using a child entity (correct MaterialColorParameter usage)
         #if canImport(UIKit)
-        if let tapIcon = UIImage(systemName: "hand.point.up.left.fill") {
-            if let tapTex = try? TextureResource.generate(from: tapIcon.cgImage!, options: .init(semantic: .color)) {
-                let iconMesh = MeshResource.generatePlane(width: size * 0.2, depth: size * 0.2)
-                var iconMat = UnlitMaterial()
-                iconMat.baseColor = .init(_colorLiteralRed: 0.5, green: 1, blue: 0.2, alpha: 1.0)
-                let iconEntity = ModelEntity(mesh: iconMesh, materials: [iconMat])
-                iconEntity.position = SIMD3<Float>(0, 0.001, 0)
-                plane.addChild(iconEntity)
-            }
+        if let tapIcon = UIImage(systemName: "hand.point.up.left.fill"),
+           let cgImage = tapIcon.cgImage,
+           let tapTex = try? TextureResource.generate(from: cgImage, options: .init(semantic: .color)) {
+            let iconMesh = MeshResource.generatePlane(width: size * 0.2, depth: size * 0.2)
+            var iconMat = UnlitMaterial()
+            iconMat.color = .init(texture: .init(tapTex))
+            let iconEntity = ModelEntity(mesh: iconMesh, materials: [iconMat])
+            iconEntity.position = SIMD3<Float>(0, 0.001, 0)
+            plane.addChild(iconEntity)
         }
         #endif
 
@@ -161,6 +305,9 @@ class RexView: UIView, UIGestureRecognizerDelegate {
             for (i, rex) in dinosaurs.enumerated() where rex.bodyFrames.contains(where: { $0 === hitEntity }) {
                 rex.anchor?.removeFromParent()
                 dinosaurs.remove(at: i)
+                UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+                notifyCountChanged()
+                DebugLog.log("Deleted rex. Count=\(dinosaurs.count)", category: "RexView")
                 break
             }
         }
@@ -172,6 +319,7 @@ class RexView: UIView, UIGestureRecognizerDelegate {
 
         switch gesture.state {
         case .began:
+            DebugLog.log("Pan began", category: "RexView")
             if let hitEntity = arView.entity(at: location) {
                 for rex in dinosaurs where rex.bodyFrames.contains(where: { $0 === hitEntity }) {
                     selectedRex = rex
@@ -201,6 +349,7 @@ class RexView: UIView, UIGestureRecognizerDelegate {
             selectedRex = nil
             dragOffset = nil
             isDragging = false
+            DebugLog.log("Pan ended", category: "RexView")
 
         default:
             break
@@ -213,6 +362,7 @@ class RexView: UIView, UIGestureRecognizerDelegate {
 
         switch gesture.state {
         case .began:
+            DebugLog.log("Rotation began", category: "RexView")
             if let hitEntity = arView.entity(at: location) {
                 for rex in dinosaurs where rex.bodyFrames.contains(where: { $0 === hitEntity }) {
                     rotatingRex = rex
@@ -229,6 +379,7 @@ class RexView: UIView, UIGestureRecognizerDelegate {
         case .ended, .cancelled:
             rotatingRex = nil
             initialRotation = nil
+            DebugLog.log("Rotation ended", category: "RexView")
 
         default:
             break
@@ -241,6 +392,7 @@ class RexView: UIView, UIGestureRecognizerDelegate {
 
         switch gesture.state {
         case .began:
+            DebugLog.log("Pinch began", category: "RexView")
             if let hitEntity = arView.entity(at: location) {
                 for rex in dinosaurs where rex.bodyFrames.contains(where: { $0 === hitEntity }) {
                     scalingRex = rex
@@ -256,6 +408,7 @@ class RexView: UIView, UIGestureRecognizerDelegate {
         case .ended, .cancelled:
             scalingRex = nil
             initialScale = nil
+            DebugLog.log("Pinch ended", category: "RexView")
 
         default:
             break
@@ -283,6 +436,10 @@ class RexView: UIView, UIGestureRecognizerDelegate {
     @objc private func clearAllDinos() {
         dinosaurs.forEach { $0.anchor?.removeFromParent() }
         dinosaurs.removeAll()
+        autoPlacedRex?.anchor?.removeFromParent()
+        autoPlacedRex = nil
+        notifyCountChanged()
+        DebugLog.log("Cleared all dinos", category: "RexView")
     }
 
     // MARK: - Scene Update
@@ -292,5 +449,106 @@ class RexView: UIView, UIGestureRecognizerDelegate {
         updateCancellable = arView.scene.subscribe(to: SceneEvents.Update.self) { [weak self] delta in
             self?.dinosaurs.forEach { $0.update(deltaTime: delta.deltaTime) }
         }
+        DebugLog.log("Subscribed to SceneEvents.Update", category: "RexView")
+    }
+
+    private func notifyCountChanged() {
+        NotificationCenter.default.post(name: .dinoCountChanged, object: dinosaurs.count)
+    }
+
+    private func warmupIfPossible() {
+        guard !didWarmup, RexData.shared.isReady, let arView = arView else { return }
+        didWarmup = true
+        DebugLog.log("Warmup started", category: "RexView")
+
+        let anchor = AnchorEntity(world: SIMD3<Float>(0, -10, 0))
+        let rex = RexObject(rexData: rexData, anchor: anchor)
+        rex.bodyFrames.forEach { anchor.addChild($0) }
+        rex.resetForPlacement()
+        rex.bodyFrames.forEach { $0.isEnabled = false }
+        prewarmedRex = rex
+        arView.scene.addAnchor(anchor)
+        DebugLog.log("Warmup finished (prewarmed rex ready)", category: "RexView")
+    }
+
+    // MARK: - ARSessionDelegate
+
+    func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
+        guard !didAutoPlace else { return }
+        for anchor in anchors {
+            guard let plane = anchor as? ARPlaneAnchor else { continue }
+            planeDetectionTimeoutWorkItem?.cancel()
+            addOrUpdatePlaneVisual(for: plane)
+            if pendingAutoPlacementTransform == nil {
+                pendingAutoPlacementTransform = plane.transform
+                tryAutoPlaceIfPossible()
+            }
+        }
+    }
+
+    func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
+        for anchor in anchors {
+            guard let plane = anchor as? ARPlaneAnchor else { continue }
+            addOrUpdatePlaneVisual(for: plane)
+        }
+    }
+
+    func session(_ session: ARSession, didRemove anchors: [ARAnchor]) {
+        for anchor in anchors {
+            guard let plane = anchor as? ARPlaneAnchor else { continue }
+            if let visual = planeVisuals.removeValue(forKey: plane.identifier) {
+                visual.removeFromParent()
+            }
+            if let anchorEntity = planeAnchors.removeValue(forKey: plane.identifier) {
+                anchorEntity.removeFromParent()
+            }
+        }
+    }
+
+    private func schedulePlaneDetectionTimeout() {
+        planeDetectionTimeoutWorkItem?.cancel()
+        let item = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
+            if self.pendingAutoPlacementTransform == nil {
+                DebugLog.log("Warning: no horizontal plane detected after 8s", category: "AR")
+            }
+        }
+        planeDetectionTimeoutWorkItem = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8.0, execute: item)
+    }
+
+    private func scheduleAutoPlacementTimeout() {
+        autoPlacementTimeoutWorkItem?.cancel()
+        let item = DispatchWorkItem { [weak self] in
+            guard let self = self else { return }
+            if self.isAutoPlacing {
+                DebugLog.log("Warning: auto placement taking longer than 2s", category: "RexView")
+            }
+        }
+        autoPlacementTimeoutWorkItem = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: item)
+    }
+
+    private func addOrUpdatePlaneVisual(for plane: ARPlaneAnchor) {
+        guard let arView = arView else { return }
+        let size = plane.extent
+        let mesh = MeshResource.generatePlane(width: size.x, depth: size.z)
+        let material = SimpleMaterial(color: UIColor.green.withAlphaComponent(0.25), isMetallic: false)
+
+        let planeEntity: ModelEntity
+        if let existing = planeVisuals[plane.identifier] {
+            planeEntity = existing
+            planeEntity.model = ModelComponent(mesh: mesh, materials: [material])
+        } else {
+            planeEntity = ModelEntity(mesh: mesh, materials: [material])
+            planeEntity.generateCollisionShapes(recursive: false)
+            planeVisuals[plane.identifier] = planeEntity
+            let anchorEntity = AnchorEntity(anchor: plane)
+            planeAnchors[plane.identifier] = anchorEntity
+            arView.scene.addAnchor(anchorEntity)
+            anchorEntity.addChild(planeEntity)
+        }
+
+        planeEntity.position = SIMD3<Float>(plane.center.x, 0, plane.center.z)
     }
 }

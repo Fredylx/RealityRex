@@ -8,69 +8,65 @@
 import SwiftUI
 
 struct InstructionOverlayView: View {
-    @State private var step = 1
+    let onFinish: () -> Void
     @State private var visible = true
 
     var body: some View {
         if visible {
-            VStack(spacing: 24) {
-                Spacer()
-
-                Group {
-                    if step == 1 {
-                        instructionBlock(step: "1", text: "Scan the room")
-                    } else if step == 2 {
-                        instructionBlock(step: "2", text: "Tap to place")
-                    } else if step == 3 {
-                        instructionBlock(step: "3", text: "Double-tap a dino to delete")
-                    }
+            VStack {
+                HStack {
+                    Spacer()
+                    instructionsCard
                 }
-                .transition(.opacity)
-                .animation(.easeInOut, value: step)
-
+                .padding(.top, 16)
+                .padding(.trailing, 16)
                 Spacer()
             }
-            .frame(maxWidth: .infinity)
             .background(Color.black.opacity(0.001)) // Non-blocking touch passthrough
             .onAppear {
-                advanceSteps()
+                DebugLog.log("InstructionOverlayView appeared", category: "UI")
+                scheduleDismiss()
             }
         }
     }
 
-    func instructionBlock(step: String, text: String) -> some View {
-        HStack(spacing: 12) {
-            Text(step)
-                .font(.headline)
-                .foregroundColor(.white)
-                .frame(width: 32, height: 32)
-                .background(Color.black)
-                .clipShape(Circle())
-
-            Text(text)
-                .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(.white)
+    private var instructionsCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Steps")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.white.opacity(0.9))
+            stepRow(step: "1", text: "Scan the room")
+            stepRow(step: "2", text: "Tap to place")
+            stepRow(step: "3", text: "Double-tap a dino to delete")
         }
-        .padding()
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
         .background(Color.black.opacity(0.75))
         .cornerRadius(12)
+        .shadow(color: .black.opacity(0.25), radius: 6, x: 0, y: 3)
     }
 
-    func advanceSteps() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+    private func stepRow(step: String, text: String) -> some View {
+        HStack(spacing: 10) {
+            Text(step)
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(.white)
+                .frame(width: 22, height: 22)
+                .background(Color.black)
+                .clipShape(Circle())
+            Text(text)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.white)
+        }
+    }
+
+    private func scheduleDismiss() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 6.0) {
             withAnimation {
-                step = 2
+                visible = false
             }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                withAnimation {
-                    step = 3
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                    withAnimation {
-                        visible = false
-                    }
-                }
-            }
+            DebugLog.log("InstructionOverlayView finished", category: "UI")
+            onFinish()
         }
     }
 }

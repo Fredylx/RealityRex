@@ -12,6 +12,9 @@ struct RealityRexApp: App {
     var body: some Scene {
         WindowGroup {
             SplashScreenView()
+                .onAppear {
+                    DebugLog.log("App launched", category: "App")
+                }
         }
     }
 }

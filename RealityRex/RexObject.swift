@@ -14,6 +14,7 @@ class RexObject {
     var anchor: AnchorEntity?
     private var frame: Double = 0.0
     private var lastFrameIndex: Int?
+    private var isVisible = true
 
     let rexData: RexData
 
@@ -21,26 +22,32 @@ class RexObject {
         self.rexData = rexData
         self.anchor = anchor
 
-//        for mesh in rexData.bodyMeshResources {
-//            let entity = ModelEntity(mesh: mesh, materials: [rexData.bodyMaterial])
-//            entity.isEnabled = false
-//            bodyFrames.append(entity)
-//        }
-        for mesh in rexData.bodyMeshResources {
-            let entity = ModelEntity(mesh: mesh, materials: [rexData.bodyMaterial])
-            entity.generateCollisionShapes(recursive: false) // 👈 Add this
-            entity.isEnabled = false
-            bodyFrames.append(entity)
+        for prototype in rexData.bodyFramePrototypes {
+            if let clone = prototype.clone(recursive: true) as? ModelEntity {
+                clone.isEnabled = false
+                bodyFrames.append(clone)
+            }
         }
+        DebugLog.log("RexObject init: frames=\(bodyFrames.count)", category: "RexObject")
 
-        // Start with first frame visible
+        resetForPlacement()
+    }
+
+    func resetForPlacement() {
+        bodyFrames.forEach { $0.isEnabled = false }
         bodyFrames.first?.isEnabled = true
         lastFrameIndex = 0
+        frame = 0.0
+        isVisible = true
     }
 
     func update(deltaTime: TimeInterval) {
+        guard isVisible else { return }
         let frameCount = bodyFrames.count
-        guard frameCount > 0 else { return }
+        guard frameCount > 0 else {
+            DebugLog.log("RexObject update: no frames", category: "RexObject")
+            return
+        }
 
         frame += deltaTime * 30.0 // ← THIS is your walking speed
         // frames per second
@@ -53,6 +60,19 @@ class RexObject {
             }
             bodyFrames[frameIndex].isEnabled = true
             lastFrameIndex = frameIndex
+        }
+    }
+
+    func setVisible(_ visible: Bool) {
+        isVisible = visible
+        if visible {
+            if let current = lastFrameIndex, current < bodyFrames.count {
+                bodyFrames[current].isEnabled = true
+            } else {
+                bodyFrames.first?.isEnabled = true
+            }
+        } else {
+            bodyFrames.forEach { $0.isEnabled = false }
         }
     }
 }

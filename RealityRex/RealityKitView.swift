@@ -6,23 +6,32 @@
 //
 
 import SwiftUI
+import Foundation
 import RealityKit
 import ARKit
 
 /// A SwiftUI wrapper for RealityKit's ARView with coaching, UI overlay, and custom content.
 struct RealityKitView: UIViewRepresentable {
     @Binding var arViewRef: ARView?
+    @Binding var placementEnabled: Bool
     
     /// Creates and configures the ARView.
     func makeUIView(context: Context) -> ARView {
+        let startTime = CFAbsoluteTimeGetCurrent()
+        DebugLog.log("ARView makeUIView", category: "AR")
         let arView = ARView(frame: .zero)
         arViewRef = arView // 💡 Assign to binding
         
         // Configure the AR session
-        configureSession(for: arView)
+        let config = configureSession(for: arView, simplified: true)
+        context.coordinator.configure(arView: arView, configuration: config)
+        context.coordinator.schedulePlacementEnablement(binding: $placementEnabled)
+        context.coordinator.scheduleConfigUpgrade()
+        context.coordinator.prewarmHaptics()
+        DebugLog.log("ARView makeUIView duration: \(String(format: "%.3f", CFAbsoluteTimeGetCurrent() - startTime))s", category: "AR")
         
         // Add custom content views
-        addRexView(to: arView)
+        addRexView(to: arView, context: context)
         addCoachingOverlay(to: arView)
         addClearButton(to: arView, context: context)
         
@@ -32,6 +41,13 @@ struct RealityKitView: UIViewRepresentable {
     /// Required by UIViewRepresentable, not used in this implementation.
     func updateUIView(_ uiView: ARView, context: Context) {}
 
+    static func dismantleUIView(_ uiView: ARView, coordinator: Coordinator) {
+        DebugLog.log("ARView dismantleUIView", category: "AR")
+        uiView.session.pause()
+        uiView.scene.anchors.removeAll()
+        coordinator.teardown()
+    }
+
     /// Provides a coordinator for bridging UIKit target actions.
     func makeCoordinator() -> Coordinator {
         Coordinator()
@@ -40,19 +56,30 @@ struct RealityKitView: UIViewRepresentable {
     // MARK: - AR Session Configuration
 
     /// Sets up horizontal plane detection and disables debug visuals for a clean experience.
-    private func configureSession(for arView: ARView) {
-        let config = ARWorldTrackingConfiguration()
-        config.planeDetection = [.horizontal]
-        config.environmentTexturing = .automatic
+    @discardableResult
+    private func configureSession(for arView: ARView, simplified: Bool) -> ARWorldTrackingConfiguration {
+        let config = Self.defaultConfiguration(simplified: simplified)
+        arView.automaticallyConfigureSession = false
         arView.session.run(config)
         arView.debugOptions = [] // Production-ready (disable anchor lines & feature points)
+        DebugLog.log("AR session configured (simplified=\(simplified))", category: "AR")
+        return config
+    }
+
+    static func defaultConfiguration(simplified: Bool = false) -> ARWorldTrackingConfiguration {
+        let config = ARWorldTrackingConfiguration()
+        config.planeDetection = [.horizontal]
+        config.environmentTexturing = simplified ? .none : .automatic
+        config.isAutoFocusEnabled = true
+        return config
     }
 
     // MARK: - UI Overlays
 
     /// Adds the custom RexView for handling AR content and gesture interaction.
-    private func addRexView(to arView: ARView) {
+    private func addRexView(to arView: ARView, context: Context) {
         let rexView = RexView(arView: arView)
+        context.coordinator.rexView = rexView
         rexView.translatesAutoresizingMaskIntoConstraints = false
         arView.addSubview(rexView)
         constrain(rexView, to: arView)
@@ -110,10 +137,96 @@ struct RealityKitView: UIViewRepresentable {
 
     /// Coordinator handles UIKit-style button tap inside SwiftUI context.
     class Coordinator {
+        private weak var arView: ARView?
+        weak var rexView: RexView?
+        private var configuration: ARWorldTrackingConfiguration?
+        private var resetObserver: NSObjectProtocol?
+        private var firstUpdateLogged = false
+        private var enablePlacementWorkItem: DispatchWorkItem?
+        private var upgradeConfigWorkItem: DispatchWorkItem?
+
+        func configure(arView: ARView, configuration: ARWorldTrackingConfiguration) {
+            self.arView = arView
+            self.configuration = configuration
+            DebugLog.log("Coordinator configured", category: "AR")
+            subscribeToFirstFrame()
+            resetObserver = NotificationCenter.default.addObserver(
+                forName: .resetARSession,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                self?.resetSession()
+            }
+        }
+
+        func teardown() {
+            if let resetObserver = resetObserver {
+                NotificationCenter.default.removeObserver(resetObserver)
+            }
+            resetObserver = nil
+            arView = nil
+            configuration = nil
+            enablePlacementWorkItem?.cancel()
+            upgradeConfigWorkItem?.cancel()
+            DebugLog.log("Coordinator teardown", category: "AR")
+        }
+
+        private func resetSession() {
+            guard let arView = arView,
+                  let configuration = configuration else { return }
+            arView.session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
+            NotificationCenter.default.post(name: .clearAllDinos, object: nil)
+            DebugLog.log("AR session reset", category: "AR")
+        }
+
         /// Triggers the notification to clear all dinos and gives haptic feedback.
         @objc func clearAllTapped() {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             NotificationCenter.default.post(name: .clearAllDinos, object: nil)
+            DebugLog.log("Clear all tapped", category: "AR")
+        }
+
+        func schedulePlacementEnablement(binding: Binding<Bool>, delay: TimeInterval = 0.9) {
+            binding.wrappedValue = false
+            rexView?.setExternalPlacementEnabled(false)
+            enablePlacementWorkItem?.cancel()
+            let item = DispatchWorkItem {
+                binding.wrappedValue = true
+                self.rexView?.setExternalPlacementEnabled(true)
+                DebugLog.log("Placement enabled after warm-up delay", category: "AR")
+            }
+            enablePlacementWorkItem = item
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: item)
+        }
+
+        func scheduleConfigUpgrade(delay: TimeInterval = 1.2) {
+            upgradeConfigWorkItem?.cancel()
+            let item = DispatchWorkItem { [weak self] in
+                guard let self = self, let arView = self.arView else { return }
+                let upgraded = RealityKitView.defaultConfiguration(simplified: false)
+                arView.session.run(upgraded)
+                self.configuration = upgraded
+                DebugLog.log("AR session upgraded to full config", category: "AR")
+            }
+            upgradeConfigWorkItem = item
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: item)
+        }
+
+        func prewarmHaptics() {
+            // Hop to the main actor because Haptics.shared and prewarm() are @MainActor-isolated
+            Task { @MainActor in
+                Haptics.shared.prewarm()
+            }
+        }
+
+        private func subscribeToFirstFrame() {
+            guard let arView = arView else { return }
+            _ = arView.scene.subscribe(to: SceneEvents.Update.self) { [weak self] _ in
+                guard let self = self, !self.firstUpdateLogged else { return }
+                self.firstUpdateLogged = true
+                DebugLog.log("First Scene.Update frame", category: "AR")
+            }
         }
     }
 }
+
