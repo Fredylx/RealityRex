@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0D93FA7A29DC4E9B00DE18B5 /* RealityRexApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D93FA7929DC4E9B00DE18B5 /* RealityRexApp.swift */; };
+		0D93FA7A29DC4E9B00DE18B5 /* App/RealityRexApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D93FA7929DC4E9B00DE18B5 /* App/RealityRexApp.swift */; };
 		0D93FA7E29DC4E9E00DE18B5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D93FA7D29DC4E9E00DE18B5 /* Assets.xcassets */; };
-		0D93FA8829DC502900DE18B5 /* RealityKitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D93FA8729DC502900DE18B5 /* RealityKitView.swift */; };
-		0D93FA8A29DC524A00DE18B5 /* RexView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D93FA8929DC524A00DE18B5 /* RexView.swift */; };
+		0D93FA8829DC502900DE18B5 /* AR/RealityKitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D93FA8729DC502900DE18B5 /* AR/RealityKitView.swift */; };
+		0D93FA8A29DC524A00DE18B5 /* AR/RexView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D93FA8929DC524A00DE18B5 /* AR/RexView.swift */; };
 		0D93FBE829DC53AB00DE18B5 /* rex_eye_left_frame_13_positions.dat in Resources */ = {isa = PBXBuildFile; fileRef = 0D93FA8E29DC53AA00DE18B5 /* rex_eye_left_frame_13_positions.dat */; };
 		0D93FBE929DC53AB00DE18B5 /* rex_eye_left_frame_39_positions.dat in Resources */ = {isa = PBXBuildFile; fileRef = 0D93FA8F29DC53AA00DE18B5 /* rex_eye_left_frame_39_positions.dat */; };
 		0D93FBEA29DC53AB00DE18B5 /* rex_eye_left_frame_17_positions.dat in Resources */ = {isa = PBXBuildFile; fileRef = 0D93FA9029DC53AA00DE18B5 /* rex_eye_left_frame_17_positions.dat */; };
@@ -347,23 +347,28 @@
 		0D93FD3529DC53AC00DE18B5 /* rex_spikes_frame_7_normals.dat in Resources */ = {isa = PBXBuildFile; fileRef = 0D93FBE529DC53AB00DE18B5 /* rex_spikes_frame_7_normals.dat */; };
 		0D93FD3629DC53AC00DE18B5 /* rex_spikes_frame_35_normals.dat in Resources */ = {isa = PBXBuildFile; fileRef = 0D93FBE629DC53AB00DE18B5 /* rex_spikes_frame_35_normals.dat */; };
 		0D93FD3729DC53AC00DE18B5 /* rex_spikes_indices.dat in Resources */ = {isa = PBXBuildFile; fileRef = 0D93FBE729DC53AB00DE18B5 /* rex_spikes_indices.dat */; };
-		0D93FD3929DC540F00DE18B5 /* RexData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D93FD3829DC540F00DE18B5 /* RexData.swift */; };
-		0D9509B029E5B6940068F8FB /* RexObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D9509AF29E5B6940068F8FB /* RexObject.swift */; };
-		FD4E86B02F2C97C3006B6E10 /* DebugLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86AF2F2C97C3006B6E10 /* DebugLog.swift */; };
-		FD4E86FE2F2FFEE7006B6E10 /* DebugHangMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86FD2F2FFEE7006B6E10 /* DebugHangMonitor.swift */; };
-		FD4E87002F302633006B6E10 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86FF2F302633006B6E10 /* Haptics.swift */; };
-		FD66F0442E330DA600525D18 /* SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD66F0432E330DA400525D18 /* SplashScreenView.swift */; };
-		FD66F0462E34176800525D18 /* InstructionOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD66F0452E34176800525D18 /* InstructionOverlayView.swift */; };
-		FD66F0482E341D6400525D18 /* MainARView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD66F0472E341D6000525D18 /* MainARView.swift */; };
+		0D93FD3929DC540F00DE18B5 /* Data/RexData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D93FD3829DC540F00DE18B5 /* Data/RexData.swift */; };
+		0D9509B029E5B6940068F8FB /* AR/RexObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D9509AF29E5B6940068F8FB /* AR/RexObject.swift */; };
+		A1B2C3D4E5F6012345678911 /* AR/RexView+Placement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678901 /* AR/RexView+Placement.swift */; };
+		A1B2C3D4E5F6012345678912 /* AR/RexView+AutoPlacement.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678902 /* AR/RexView+AutoPlacement.swift */; };
+		A1B2C3D4E5F6012345678913 /* AR/RexView+PlaneVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678903 /* AR/RexView+PlaneVisualization.swift */; };
+		A1B2C3D4E5F6012345678914 /* AR/RexView+Lifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678904 /* AR/RexView+Lifecycle.swift */; };
+		A1B2C3D4E5F6012345678915 /* App/AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678905 /* App/AppState.swift */; };
+		FD4E86B02F2C97C3006B6E10 /* Utils/DebugLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86AF2F2C97C3006B6E10 /* Utils/DebugLog.swift */; };
+		FD4E86FE2F2FFEE7006B6E10 /* Utils/DebugHangMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86FD2F2FFEE7006B6E10 /* Utils/DebugHangMonitor.swift */; };
+		FD4E87002F302633006B6E10 /* Utils/Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86FF2F302633006B6E10 /* Utils/Haptics.swift */; };
+		FD66F0442E330DA600525D18 /* App/SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD66F0432E330DA400525D18 /* App/SplashScreenView.swift */; };
+		FD66F0462E34176800525D18 /* UI/Overlays/InstructionOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD66F0452E34176800525D18 /* UI/Overlays/InstructionOverlayView.swift */; };
+		FD66F0482E341D6400525D18 /* UI/Screens/MainARView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD66F0472E341D6000525D18 /* UI/Screens/MainARView.swift */; };
 		FDE77ABF2DF40C58001C955A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FDE77ABD2DF40C58001C955A /* Preview Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0D93FA7629DC4E9B00DE18B5 /* RealityRex.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RealityRex.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		0D93FA7929DC4E9B00DE18B5 /* RealityRexApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealityRexApp.swift; sourceTree = "<group>"; };
+		0D93FA7929DC4E9B00DE18B5 /* App/RealityRexApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/RealityRexApp.swift; sourceTree = "<group>"; };
 		0D93FA7D29DC4E9E00DE18B5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		0D93FA8729DC502900DE18B5 /* RealityKitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealityKitView.swift; sourceTree = "<group>"; };
-		0D93FA8929DC524A00DE18B5 /* RexView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RexView.swift; sourceTree = "<group>"; };
+		0D93FA8729DC502900DE18B5 /* AR/RealityKitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AR/RealityKitView.swift; sourceTree = "<group>"; };
+		0D93FA8929DC524A00DE18B5 /* AR/RexView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AR/RexView.swift; sourceTree = "<group>"; };
 		0D93FA8E29DC53AA00DE18B5 /* rex_eye_left_frame_13_positions.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = rex_eye_left_frame_13_positions.dat; sourceTree = "<group>"; };
 		0D93FA8F29DC53AA00DE18B5 /* rex_eye_left_frame_39_positions.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = rex_eye_left_frame_39_positions.dat; sourceTree = "<group>"; };
 		0D93FA9029DC53AA00DE18B5 /* rex_eye_left_frame_17_positions.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = rex_eye_left_frame_17_positions.dat; sourceTree = "<group>"; };
@@ -700,14 +705,19 @@
 		0D93FBE529DC53AB00DE18B5 /* rex_spikes_frame_7_normals.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = rex_spikes_frame_7_normals.dat; sourceTree = "<group>"; };
 		0D93FBE629DC53AB00DE18B5 /* rex_spikes_frame_35_normals.dat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rex_spikes_frame_35_normals.dat; sourceTree = "<group>"; };
 		0D93FBE729DC53AB00DE18B5 /* rex_spikes_indices.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = rex_spikes_indices.dat; sourceTree = "<group>"; };
-		0D93FD3829DC540F00DE18B5 /* RexData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RexData.swift; sourceTree = "<group>"; };
-		0D9509AF29E5B6940068F8FB /* RexObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RexObject.swift; sourceTree = "<group>"; };
-		FD4E86AF2F2C97C3006B6E10 /* DebugLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLog.swift; sourceTree = "<group>"; };
-		FD4E86FD2F2FFEE7006B6E10 /* DebugHangMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugHangMonitor.swift; sourceTree = "<group>"; };
-		FD4E86FF2F302633006B6E10 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
-		FD66F0432E330DA400525D18 /* SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreenView.swift; sourceTree = "<group>"; };
-		FD66F0452E34176800525D18 /* InstructionOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructionOverlayView.swift; sourceTree = "<group>"; };
-		FD66F0472E341D6000525D18 /* MainARView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainARView.swift; sourceTree = "<group>"; };
+		0D93FD3829DC540F00DE18B5 /* Data/RexData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Data/RexData.swift; sourceTree = "<group>"; };
+		0D9509AF29E5B6940068F8FB /* AR/RexObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AR/RexObject.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6012345678901 /* AR/RexView+Placement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AR/RexView+Placement.swift"; sourceTree = "<group>"; };
+		A1B2C3D4E5F6012345678902 /* AR/RexView+AutoPlacement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AR/RexView+AutoPlacement.swift"; sourceTree = "<group>"; };
+		A1B2C3D4E5F6012345678903 /* AR/RexView+PlaneVisualization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AR/RexView+PlaneVisualization.swift"; sourceTree = "<group>"; };
+		A1B2C3D4E5F6012345678904 /* AR/RexView+Lifecycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AR/RexView+Lifecycle.swift"; sourceTree = "<group>"; };
+		A1B2C3D4E5F6012345678905 /* App/AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/AppState.swift; sourceTree = "<group>"; };
+		FD4E86AF2F2C97C3006B6E10 /* Utils/DebugLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/DebugLog.swift; sourceTree = "<group>"; };
+		FD4E86FD2F2FFEE7006B6E10 /* Utils/DebugHangMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/DebugHangMonitor.swift; sourceTree = "<group>"; };
+		FD4E86FF2F302633006B6E10 /* Utils/Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/Haptics.swift; sourceTree = "<group>"; };
+		FD66F0432E330DA400525D18 /* App/SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/SplashScreenView.swift; sourceTree = "<group>"; };
+		FD66F0452E34176800525D18 /* UI/Overlays/InstructionOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI/Overlays/InstructionOverlayView.swift; sourceTree = "<group>"; };
+		FD66F0472E341D6000525D18 /* UI/Screens/MainARView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI/Screens/MainARView.swift; sourceTree = "<group>"; };
 		FDE77ABD2DF40C58001C955A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -743,24 +753,29 @@
 			children = (
 				FDE77ABD2DF40C58001C955A /* Preview Assets.xcassets */,
 				FDE77ABE2DF40C58001C955A /* Preview Content */,
-				0D93FA8B29DC53AA00DE18B5 /* ModelData */,
-				0D93FA7929DC4E9B00DE18B5 /* RealityRexApp.swift */,
+				0D93FA8B29DC53AA00DE18B5 /* Data/ModelData */,
+				0D93FA7929DC4E9B00DE18B5 /* App/RealityRexApp.swift */,
+				A1B2C3D4E5F6012345678905 /* App/AppState.swift */,
 				0D93FA7D29DC4E9E00DE18B5 /* Assets.xcassets */,
-				FD4E86AF2F2C97C3006B6E10 /* DebugLog.swift */,
-				0D93FA8729DC502900DE18B5 /* RealityKitView.swift */,
-				FD66F0452E34176800525D18 /* InstructionOverlayView.swift */,
-				0D93FA8929DC524A00DE18B5 /* RexView.swift */,
-				0D93FD3829DC540F00DE18B5 /* RexData.swift */,
-				0D9509AF29E5B6940068F8FB /* RexObject.swift */,
-				FD66F0432E330DA400525D18 /* SplashScreenView.swift */,
-				FD66F0472E341D6000525D18 /* MainARView.swift */,
-				FD4E86FD2F2FFEE7006B6E10 /* DebugHangMonitor.swift */,
-				FD4E86FF2F302633006B6E10 /* Haptics.swift */,
+				FD4E86AF2F2C97C3006B6E10 /* Utils/DebugLog.swift */,
+				0D93FA8729DC502900DE18B5 /* AR/RealityKitView.swift */,
+				FD66F0452E34176800525D18 /* UI/Overlays/InstructionOverlayView.swift */,
+				0D93FA8929DC524A00DE18B5 /* AR/RexView.swift */,
+				A1B2C3D4E5F6012345678901 /* AR/RexView+Placement.swift */,
+				A1B2C3D4E5F6012345678902 /* AR/RexView+AutoPlacement.swift */,
+				A1B2C3D4E5F6012345678903 /* AR/RexView+PlaneVisualization.swift */,
+				A1B2C3D4E5F6012345678904 /* AR/RexView+Lifecycle.swift */,
+				0D93FD3829DC540F00DE18B5 /* Data/RexData.swift */,
+				0D9509AF29E5B6940068F8FB /* AR/RexObject.swift */,
+				FD66F0432E330DA400525D18 /* App/SplashScreenView.swift */,
+				FD66F0472E341D6000525D18 /* UI/Screens/MainARView.swift */,
+				FD4E86FD2F2FFEE7006B6E10 /* Utils/DebugHangMonitor.swift */,
+				FD4E86FF2F302633006B6E10 /* Utils/Haptics.swift */,
 			);
 			path = RealityRex;
 			sourceTree = "<group>";
 		};
-		0D93FA8B29DC53AA00DE18B5 /* ModelData */ = {
+		0D93FA8B29DC53AA00DE18B5 /* Data/ModelData */ = {
 			isa = PBXGroup;
 			children = (
 				0D93FA8C29DC53AA00DE18B5 /* left_eye */,
@@ -768,7 +783,7 @@
 				0D93FB3A29DC53AB00DE18B5 /* body */,
 				0D93FB9129DC53AB00DE18B5 /* spikes */,
 			);
-			path = ModelData;
+			path = Data/ModelData;
 			sourceTree = "<group>";
 		};
 		0D93FA8C29DC53AA00DE18B5 /* left_eye */ = {
@@ -1612,17 +1627,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0D93FA8A29DC524A00DE18B5 /* RexView.swift in Sources */,
-				0D9509B029E5B6940068F8FB /* RexObject.swift in Sources */,
-				FD4E86B02F2C97C3006B6E10 /* DebugLog.swift in Sources */,
-				0D93FD3929DC540F00DE18B5 /* RexData.swift in Sources */,
-				0D93FA7A29DC4E9B00DE18B5 /* RealityRexApp.swift in Sources */,
-				0D93FA8829DC502900DE18B5 /* RealityKitView.swift in Sources */,
-				FD4E86FE2F2FFEE7006B6E10 /* DebugHangMonitor.swift in Sources */,
-				FD4E87002F302633006B6E10 /* Haptics.swift in Sources */,
-				FD66F0482E341D6400525D18 /* MainARView.swift in Sources */,
-				FD66F0442E330DA600525D18 /* SplashScreenView.swift in Sources */,
-				FD66F0462E34176800525D18 /* InstructionOverlayView.swift in Sources */,
+				0D93FA8A29DC524A00DE18B5 /* AR/RexView.swift in Sources */,
+				A1B2C3D4E5F6012345678911 /* AR/RexView+Placement.swift in Sources */,
+				A1B2C3D4E5F6012345678912 /* AR/RexView+AutoPlacement.swift in Sources */,
+				A1B2C3D4E5F6012345678913 /* AR/RexView+PlaneVisualization.swift in Sources */,
+				A1B2C3D4E5F6012345678914 /* AR/RexView+Lifecycle.swift in Sources */,
+				0D9509B029E5B6940068F8FB /* AR/RexObject.swift in Sources */,
+				FD4E86B02F2C97C3006B6E10 /* Utils/DebugLog.swift in Sources */,
+				0D93FD3929DC540F00DE18B5 /* Data/RexData.swift in Sources */,
+				0D93FA7A29DC4E9B00DE18B5 /* App/RealityRexApp.swift in Sources */,
+				A1B2C3D4E5F6012345678915 /* App/AppState.swift in Sources */,
+				0D93FA8829DC502900DE18B5 /* AR/RealityKitView.swift in Sources */,
+				FD4E86FE2F2FFEE7006B6E10 /* Utils/DebugHangMonitor.swift in Sources */,
+				FD4E87002F302633006B6E10 /* Utils/Haptics.swift in Sources */,
+				FD66F0482E341D6400525D18 /* UI/Screens/MainARView.swift in Sources */,
+				FD66F0442E330DA600525D18 /* App/SplashScreenView.swift in Sources */,
+				FD66F0462E34176800525D18 /* UI/Overlays/InstructionOverlayView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

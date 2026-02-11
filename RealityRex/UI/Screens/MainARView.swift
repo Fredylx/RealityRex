@@ -13,8 +13,8 @@ struct MainARView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var arViewRef: ARView?
     @State private var placementEnabled = false
+    @StateObject private var appState = AppState()
     @State private var showInstructions = true
-    @State private var dinoCount = 0
     @State private var showLimitToast = false
     @State private var toastWorkItem: DispatchWorkItem?
     @State private var showLoading = true
@@ -28,7 +28,7 @@ struct MainARView: View {
     
     var body: some View {
         ZStack {
-            RealityKitView(arViewRef: $arViewRef, placementEnabled: $placementEnabled)
+            RealityKitView(arViewRef: $arViewRef, placementEnabled: $placementEnabled, appState: appState)
                 .ignoresSafeArea()
             
             if showInstructions {
@@ -66,7 +66,7 @@ struct MainARView: View {
 
                 HStack {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("T-Rex count: \(dinoCount)")
+                        Text("T-Rex count: \(appState.dinoCount)")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.white)
                         Text("Tap to place • Tap a dino to select")
@@ -163,12 +163,6 @@ struct MainARView: View {
             DebugLog.log("MainARView appeared", category: "UI")
             showLoading = !RexData.shared.isReady
             DebugHangMonitor.shared.start()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .dinoCountChanged)) { notification in
-            if let count = notification.object as? Int {
-                dinoCount = count
-                DebugLog.log("Dino count changed: \(count)", category: "UI")
-            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .rexDataReady)) { _ in
             withAnimation(.easeOut(duration: 0.2)) {

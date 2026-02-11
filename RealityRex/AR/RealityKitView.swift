@@ -14,6 +14,7 @@ import ARKit
 struct RealityKitView: UIViewRepresentable {
     @Binding var arViewRef: ARView?
     @Binding var placementEnabled: Bool
+    let appState: AppState
     
     /// Creates and configures the ARView.
     func makeUIView(context: Context) -> ARView {
@@ -78,7 +79,7 @@ struct RealityKitView: UIViewRepresentable {
 
     /// Adds the custom RexView for handling AR content and gesture interaction.
     private func addRexView(to arView: ARView, context: Context) {
-        let rexView = RexView(arView: arView)
+        let rexView = RexView(arView: arView, appState: appState)
         context.coordinator.rexView = rexView
         rexView.translatesAutoresizingMaskIntoConstraints = false
         arView.addSubview(rexView)
@@ -229,4 +230,3 @@ struct RealityKitView: UIViewRepresentable {
         }
     }
 }
-
