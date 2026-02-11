@@ -21,21 +21,21 @@ extension Notification.Name {
     static let autoPlacementStarted = Notification.Name("autoPlacementStarted")
     static let autoPlacementFinished = Notification.Name("autoPlacementFinished")
     static let autoPlacementStatus = Notification.Name("autoPlacementStatus")
+//    static let selectedDinoChanged = Notification.Name("selectedDinoChanged")
+//    static let controllerMove = Notification.Name("controllerMove")
+//    static let controllerRotate = Notification.Name("controllerRotate")
+//    static let controllerScale = Notification.Name("controllerScale")
+//    static let controllerDelete = Notification.Name("controllerDelete")
 }
 
 /// View responsible for managing all AR content, gestures, and interactions in the scene.
-class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
+class RexView: UIView /*, UIGestureRecognizerDelegate*/, ARSessionDelegate {
 
     // MARK: - AR Scene State
     private var dinosaurs: [RexObject] = []
     private var selectedRex: RexObject?
-    private var rotatingRex: RexObject?
-    private var scalingRex: RexObject?
 
-    private var isDragging = false
     private var dragOffset: SIMD3<Float>?
-    private var initialRotation: simd_quatf?
-    private var initialScale: SIMD3<Float>?
 
     private var updateCancellable: Cancellable?
     private var warmupObserver: NSObjectProtocol?
@@ -66,9 +66,13 @@ class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
 
         DebugLog.log("RexView init", category: "RexView")
         arView.session.delegate = self
-        setupGestureRecognizers()
+        // setupGestureRecognizers()
         subscribeToSceneUpdates()
         NotificationCenter.default.addObserver(self, selector: #selector(clearAllDinos), name: .clearAllDinos, object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(handleControllerMove(_:)), name: .controllerMove, object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(handleControllerRotate(_:)), name: .controllerRotate, object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(handleControllerScale(_:)), name: .controllerScale, object: nil)
+//        NotificationCenter.default.addObserver(self, selector: #selector(handleControllerDelete), name: .controllerDelete, object: nil)
         schedulePlaneDetectionTimeout()
         warmupIfPossible()
         warmupObserver = NotificationCenter.default.addObserver(
@@ -94,23 +98,18 @@ class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
     }
 
     // MARK: - Gesture Setup
+    /*
     private func setupGestureRecognizers() {
         DebugLog.log("Setup gestures", category: "RexView")
-        let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
-        let rotate = UIRotationGestureRecognizer(target: self, action: #selector(handleRotation(_:)))
-        let pinch = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:)))
-        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
-        doubleTap.numberOfTapsRequired = 2
-
-        [pan, rotate, pinch, doubleTap].forEach {
-            $0.delegate = self
-            self.addGestureRecognizer($0)
-        }
+        // Gestures disabled for now; tap-to-select and tap-to-place handled in touchesBegan.
     }
+    */
 
+    /*
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
+    */
 
     // MARK: - Touch to Place Dino
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -120,6 +119,15 @@ class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
             DebugLog.log("Touch ignored: placement not yet enabled", category: "RexView")
             return
         }
+
+//        if let point = touches.first?.location(in: arView),
+//           let hitEntity = arView.entity(at: point),
+//           let rex = dinosaurs.first(where: { $0.bodyFrames.contains(where: { $0 === hitEntity }) }) {
+//            select(rex)
+//            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+//            return
+//        }
+
         guard RexData.shared.isReady else {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             NotificationCenter.default.post(name: .dinoLoadingTap, object: nil)
@@ -179,6 +187,7 @@ class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
         if !freeFirstPlacementUsed {
             freeFirstPlacementUsed = true
         }
+//        select(rex)
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
         notifyCountChanged()
         DebugLog.log("Placed rex. Count=\(dinosaurs.count)", category: "RexView")
@@ -195,6 +204,12 @@ class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
         externalPlacementEnabled = enabled
         DebugLog.log("External placement enabled=\(enabled)", category: "RexView")
     }
+
+//    private func select(_ rex: RexObject?) {
+//        selectedRex = rex
+//        NotificationCenter.default.post(name: .selectedDinoChanged, object: rex != nil)
+//        DebugLog.log("Selected rex changed: \(rex != nil)", category: "RexView")
+//    }
 
     // MARK: - Auto Placement
 
@@ -298,125 +313,99 @@ class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
     }
 
     // MARK: - Gesture Handlers
+    /*
+    // MARK: - Gesture Handlers
 
+    @objc private func handleTap(_ gesture: UITapGestureRecognizer) {
+        // Tap handler code here if any
+    }
 
-    // Double-tap to delete dino
-    @objc private func handleDoubleTap(_ gesture: UITapGestureRecognizer) {
-        guard let arView = arView else { return }
-        let location = gesture.location(in: arView)
-        if let hitEntity = arView.entity(at: location) {
-            for (i, rex) in dinosaurs.enumerated() where rex.bodyFrames.contains(where: { $0 === hitEntity }) {
-                rex.anchor?.removeFromParent()
-                dinosaurs.remove(at: i)
-                UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
-                notifyCountChanged()
-                DebugLog.log("Deleted rex. Count=\(dinosaurs.count)", category: "RexView")
-                break
-            }
-        }
+    @objc private func handleDoubleTapDelete(_ gesture: UITapGestureRecognizer) {
+        // Double tap delete handler code here if any
     }
 
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
-        guard let arView = arView else { return }
-        let location = gesture.location(in: arView)
-
-        switch gesture.state {
-        case .began:
-            DebugLog.log("Pan began", category: "RexView")
-            if let hitEntity = arView.entity(at: location) {
-                for rex in dinosaurs where rex.bodyFrames.contains(where: { $0 === hitEntity }) {
-                    selectedRex = rex
-                    isDragging = true
-                    if let anchorPos = rex.anchor?.position(relativeTo: nil),
-                       let ray = arView.raycast(from: location, allowing: .existingPlaneGeometry, alignment: .horizontal).first {
-                        let hitPoint = SIMD3<Float>(ray.worldTransform.columns.3.x,
-                                                    ray.worldTransform.columns.3.y,
-                                                    ray.worldTransform.columns.3.z)
-                        dragOffset = anchorPos - hitPoint
-                    }
-                    break
-                }
-            }
-        case .changed:
-            guard isDragging,
-                  let rex = selectedRex,
-                  let offset = dragOffset,
-                  let ray = arView.raycast(from: location, allowing: .existingPlaneGeometry, alignment: .horizontal).first else { return }
-
-            let hitPoint = SIMD3<Float>(ray.worldTransform.columns.3.x,
-                                        ray.worldTransform.columns.3.y,
-                                        ray.worldTransform.columns.3.z)
-            rex.anchor?.setPosition(hitPoint + offset, relativeTo: nil)
-
-        case .ended, .cancelled:
-            selectedRex = nil
-            dragOffset = nil
-            isDragging = false
-            DebugLog.log("Pan ended", category: "RexView")
-
-        default:
-            break
-        }
+        // Pan handler code here if any
     }
 
     @objc private func handleRotation(_ gesture: UIRotationGestureRecognizer) {
-        guard let arView = arView else { return }
-        let location = gesture.location(in: arView)
-
-        switch gesture.state {
-        case .began:
-            DebugLog.log("Rotation began", category: "RexView")
-            if let hitEntity = arView.entity(at: location) {
-                for rex in dinosaurs where rex.bodyFrames.contains(where: { $0 === hitEntity }) {
-                    rotatingRex = rex
-                    initialRotation = rex.anchor?.orientation(relativeTo: nil)
-                    break
-                }
-            }
-
-        case .changed:
-            guard let rex = rotatingRex, let original = initialRotation else { return }
-            let deltaRotation = simd_quatf(angle: Float(-gesture.rotation), axis: [0, 1, 0])
-            rex.anchor?.setOrientation(simd_normalize(deltaRotation * original), relativeTo: nil)
-
-        case .ended, .cancelled:
-            rotatingRex = nil
-            initialRotation = nil
-            DebugLog.log("Rotation ended", category: "RexView")
-
-        default:
-            break
-        }
+        // Rotation handler code here if any
     }
 
     @objc private func handlePinch(_ gesture: UIPinchGestureRecognizer) {
-        guard let arView = arView else { return }
-        let location = gesture.location(in: arView)
-
-        switch gesture.state {
-        case .began:
-            DebugLog.log("Pinch began", category: "RexView")
-            if let hitEntity = arView.entity(at: location) {
-                for rex in dinosaurs where rex.bodyFrames.contains(where: { $0 === hitEntity }) {
-                    scalingRex = rex
-                    initialScale = rex.anchor?.scale(relativeTo: nil)
-                    break
-                }
-            }
-
-        case .changed:
-            guard let rex = scalingRex, let baseScale = initialScale else { return }
-            rex.anchor?.setScale(baseScale * Float(gesture.scale), relativeTo: nil)
-
-        case .ended, .cancelled:
-            scalingRex = nil
-            initialScale = nil
-            DebugLog.log("Pinch ended", category: "RexView")
-
-        default:
-            break
-        }
+        // Pinch handler code here if any
     }
+    */
+
+//    // MARK: - Controller Actions
+//
+//    @objc private func handleControllerMove(_ notification: Notification) {
+//        guard let arView = arView,
+//              let rex = selectedRex,
+//              let dir = notification.userInfo?["dir"] as? String else { return }
+//
+//        let step: Float = 0.05
+//        let cameraTransform = arView.cameraTransform.matrix
+//        var forward = SIMD3<Float>(-cameraTransform.columns.2.x, 0, -cameraTransform.columns.2.z)
+//        var right = SIMD3<Float>(cameraTransform.columns.0.x, 0, cameraTransform.columns.0.z)
+//        if simd_length(forward) > 0 { forward = simd_normalize(forward) }
+//        if simd_length(right) > 0 { right = simd_normalize(right) }
+//
+//        var delta = SIMD3<Float>(0, 0, 0)
+//        switch dir {
+//        case "up":
+//            delta = forward * step
+//        case "down":
+//            delta = -forward * step
+//        case "left":
+//            delta = -right * step
+//        case "right":
+//            delta = right * step
+//        default:
+//            break
+//        }
+//
+//        if let pos = rex.anchor?.position(relativeTo: nil) {
+//            rex.anchor?.setPosition(pos + delta, relativeTo: nil)
+//        }
+//    }
+//
+//    @objc private func handleControllerRotate(_ notification: Notification) {
+//        guard let rex = selectedRex,
+//              let dir = notification.userInfo?["dir"] as? String else { return }
+//        let angle: Float = (dir == "left") ? 10.0 : -10.0
+//        let radians = angle * (.pi / 180.0)
+//        let delta = simd_quatf(angle: radians, axis: [0, 1, 0])
+//        if let current = rex.anchor?.orientation(relativeTo: nil) {
+//            rex.anchor?.setOrientation(simd_normalize(delta * current), relativeTo: nil)
+//        }
+//    }
+//
+//    @objc private func handleControllerScale(_ notification: Notification) {
+//        guard let rex = selectedRex,
+//              let dir = notification.userInfo?["dir"] as? String else { return }
+//        let factor: Float = (dir == "up") ? 1.08 : 0.92
+//        if let current = rex.anchor?.scale(relativeTo: nil) {
+//            let next = current * factor
+//            let clamped = SIMD3<Float>(
+//                max(0.2, min(3.0, next.x)),
+//                max(0.2, min(3.0, next.y)),
+//                max(0.2, min(3.0, next.z))
+//            )
+//            rex.anchor?.setScale(clamped, relativeTo: nil)
+//        }
+//    }
+//
+//    @objc private func handleControllerDelete() {
+//        guard let rex = selectedRex,
+//              let index = dinosaurs.firstIndex(where: { $0 === rex }) else { return }
+//        rex.anchor?.removeFromParent()
+//        dinosaurs.remove(at: index)
+//        select(nil)
+//        notifyCountChanged()
+//        UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
+//        DebugLog.log("Deleted rex via controller. Count=\(dinosaurs.count)", category: "RexView")
+//    }
 
     // MARK: - Utility
 
@@ -441,6 +430,7 @@ class RexView: UIView, UIGestureRecognizerDelegate, ARSessionDelegate {
         dinosaurs.removeAll()
         autoPlacedRex?.anchor?.removeFromParent()
         autoPlacedRex = nil
+//        select(nil)
         notifyCountChanged()
         DebugLog.log("Cleared all dinos", category: "RexView")
     }

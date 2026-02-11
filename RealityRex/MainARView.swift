@@ -24,6 +24,7 @@ struct MainARView: View {
     @State private var showAutoPlacementReady = false
     @State private var autoPlacementMessage = "Preparing your first dino..."
     @State private var autoPlacementReadyWorkItem: DispatchWorkItem?
+    @State private var hasSelectedDino = false
     
     var body: some View {
         ZStack {
@@ -68,7 +69,7 @@ struct MainARView: View {
                         Text("T-Rex count: \(dinoCount)")
                             .font(.system(size: 14, weight: .semibold))
                             .foregroundColor(.white)
-                        Text("Tap to place • Pinch to scale • Rotate to turn")
+                        Text("Tap to place • Tap a dino to select")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundColor(.white.opacity(0.85))
                     }
@@ -83,6 +84,12 @@ struct MainARView: View {
                 .padding(.leading, 16)
                 .padding(.bottom, 16)
             }
+
+//            VStack {
+//                Spacer()
+//                controllerPad
+//                    .padding(.bottom, 24)
+//            }
 
             if showLimitToast {
                 VStack {
@@ -209,6 +216,13 @@ struct MainARView: View {
                 autoPlacementMessage = text
             }
         }
+//        .onReceive(NotificationCenter.default.publisher(for: .selectedDinoChanged)) { notification in
+//            if let selected = notification.object as? Bool {
+//                withAnimation(.easeInOut(duration: 0.2)) {
+//                    hasSelectedDino = selected
+//                }
+//            }
+//        }
         .onReceive(NotificationCenter.default.publisher(for: .dinoLimitReached)) { _ in
             showLimitToast = true
             toastWorkItem?.cancel()
@@ -239,4 +253,88 @@ struct MainARView: View {
             }
         }
     }
+
+//    private var controllerPad: some View {
+//        HStack(spacing: 16) {
+//            VStack(spacing: 8) {
+//                Button(action: { postMove("up") }) {
+//                    Image(systemName: "arrow.up")
+//                        .font(.system(size: 18, weight: .semibold))
+//                        .frame(width: 44, height: 36)
+//                }
+//                HStack(spacing: 8) {
+//                    Button(action: { postMove("left") }) {
+//                        Image(systemName: "arrow.left")
+//                            .font(.system(size: 18, weight: .semibold))
+//                            .frame(width: 44, height: 36)
+//                    }
+//                    Button(action: { postMove("right") }) {
+//                        Image(systemName: "arrow.right")
+//                            .font(.system(size: 18, weight: .semibold))
+//                            .frame(width: 44, height: 36)
+//                    }
+//                }
+//                Button(action: { postMove("down") }) {
+//                    Image(systemName: "arrow.down")
+//                        .font(.system(size: 18, weight: .semibold))
+//                        .frame(width: 44, height: 36)
+//                }
+//            }
+//
+//            VStack(spacing: 8) {
+//                Button(action: { postRotate("left") }) {
+//                    Image(systemName: "rotate.left")
+//                        .font(.system(size: 18, weight: .semibold))
+//                        .frame(width: 44, height: 36)
+//                }
+//                HStack(spacing: 8) {
+//                    Button(action: { postScale("down") }) {
+//                        Image(systemName: "minus")
+//                            .font(.system(size: 18, weight: .semibold))
+//                            .frame(width: 44, height: 36)
+//                    }
+//                    Button(action: { postScale("up") }) {
+//                        Image(systemName: "plus")
+//                            .font(.system(size: 18, weight: .semibold))
+//                            .frame(width: 44, height: 36)
+//                    }
+//                }
+//                Button(action: { postRotate("right") }) {
+//                    Image(systemName: "rotate.right")
+//                        .font(.system(size: 18, weight: .semibold))
+//                        .frame(width: 44, height: 36)
+//                }
+//            }
+//
+//            Button(action: { postDelete() }) {
+//                Image(systemName: "trash")
+//                    .font(.system(size: 18, weight: .semibold))
+//                    .frame(width: 44, height: 36)
+//            }
+//        }
+//        .padding(.horizontal, 14)
+//        .padding(.vertical, 12)
+//        .background(Color.black.opacity(0.7))
+//        .cornerRadius(14)
+//        .shadow(color: .black.opacity(0.35), radius: 6, x: 0, y: 3)
+//        .opacity(hasSelectedDino ? 1.0 : 0.35)
+//        .animation(.easeInOut(duration: 0.2), value: hasSelectedDino)
+//        .allowsHitTesting(hasSelectedDino)
+//    }
+//
+//    private func postMove(_ dir: String) {
+//        NotificationCenter.default.post(name: .controllerMove, object: nil, userInfo: ["dir": dir])
+//    }
+//
+//    private func postRotate(_ dir: String) {
+//        NotificationCenter.default.post(name: .controllerRotate, object: nil, userInfo: ["dir": dir])
+//    }
+//
+//    private func postScale(_ dir: String) {
+//        NotificationCenter.default.post(name: .controllerScale, object: nil, userInfo: ["dir": dir])
+//    }
+//
+//    private func postDelete() {
+//        NotificationCenter.default.post(name: .controllerDelete, object: nil)
+//    }
 }
