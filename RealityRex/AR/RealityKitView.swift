@@ -24,7 +24,7 @@ struct RealityKitView: UIViewRepresentable {
         arViewRef = arView // 💡 Assign to binding
         
         // Configure the AR session
-        let config = configureSession(for: arView, simplified: true)
+        let config = context.coordinator.sessionManager.configureSession(for: arView, simplified: true)
         context.coordinator.configure(arView: arView, configuration: config)
         context.coordinator.schedulePlacementEnablement(binding: $placementEnabled)
         context.coordinator.scheduleConfigUpgrade()
@@ -58,21 +58,8 @@ struct RealityKitView: UIViewRepresentable {
 
     /// Sets up horizontal plane detection and disables debug visuals for a clean experience.
     @discardableResult
-    private func configureSession(for arView: ARView, simplified: Bool) -> ARWorldTrackingConfiguration {
-        let config = Self.defaultConfiguration(simplified: simplified)
-        arView.automaticallyConfigureSession = false
-        arView.session.run(config)
-        arView.debugOptions = [] // Production-ready (disable anchor lines & feature points)
-        DebugLog.log("AR session configured (simplified=\(simplified))", category: "AR")
-        return config
-    }
-
     static func defaultConfiguration(simplified: Bool = false) -> ARWorldTrackingConfiguration {
-        let config = ARWorldTrackingConfiguration()
-        config.planeDetection = [.horizontal]
-        config.environmentTexturing = simplified ? .none : .automatic
-        config.isAutoFocusEnabled = true
-        return config
+        ARSessionManager.defaultConfiguration(simplified: simplified)
     }
 
     // MARK: - UI Overlays
@@ -139,6 +126,7 @@ struct RealityKitView: UIViewRepresentable {
     /// Coordinator handles UIKit-style button tap inside SwiftUI context.
     class Coordinator {
         private weak var arView: ARView?
+        let sessionManager = ARSessionManager()
         weak var rexView: RexView?
         private var configuration: ARWorldTrackingConfiguration?
         private var resetObserver: NSObjectProtocol?
@@ -187,7 +175,7 @@ struct RealityKitView: UIViewRepresentable {
             DebugLog.log("Clear all tapped", category: "AR")
         }
 
-        func schedulePlacementEnablement(binding: Binding<Bool>, delay: TimeInterval = 0.9) {
+        func schedulePlacementEnablement(binding: Binding<Bool>, delay: TimeInterval = ARConstants.placementEnableDelay) {
             binding.wrappedValue = false
             rexView?.setExternalPlacementEnabled(false)
             enablePlacementWorkItem?.cancel()
@@ -200,11 +188,11 @@ struct RealityKitView: UIViewRepresentable {
             DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: item)
         }
 
-        func scheduleConfigUpgrade(delay: TimeInterval = 1.2) {
+        func scheduleConfigUpgrade(delay: TimeInterval = ARConstants.configUpgradeDelay) {
             upgradeConfigWorkItem?.cancel()
             let item = DispatchWorkItem { [weak self] in
                 guard let self = self, let arView = self.arView else { return }
-                let upgraded = RealityKitView.defaultConfiguration(simplified: false)
+                let upgraded = ARSessionManager.defaultConfiguration(simplified: false)
                 arView.session.run(upgraded)
                 self.configuration = upgraded
                 DebugLog.log("AR session upgraded to full config", category: "AR")

@@ -24,13 +24,25 @@ extension RexView {
 
         guard RexData.shared.isReady else {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
-            NotificationCenter.default.post(name: .dinoLoadingTap, object: nil)
+            loadingTapWorkItem?.cancel()
+            appState.showLoadingTapHint = true
+            let item = DispatchWorkItem { [weak self] in
+                self?.appState.showLoadingTapHint = false
+            }
+            loadingTapWorkItem = item
+            DispatchQueue.main.asyncAfter(deadline: .now() + ARConstants.loadingTapHintDuration, execute: item)
             DebugLog.log("Touch ignored: RexData not ready", category: "RexView")
             return
         }
         guard effectiveDinoCount() < maxDinos else {
             UIImpactFeedbackGenerator(style: .rigid).impactOccurred()
-            NotificationCenter.default.post(name: .dinoLimitReached, object: nil)
+            limitToastWorkItem?.cancel()
+            appState.showLimitToast = true
+            let item = DispatchWorkItem { [weak self] in
+                self?.appState.showLimitToast = false
+            }
+            limitToastWorkItem = item
+            DispatchQueue.main.asyncAfter(deadline: .now() + ARConstants.limitToastDuration, execute: item)
             DebugLog.log("Touch ignored: limit reached", category: "RexView")
             return
         }
@@ -145,4 +157,3 @@ extension RexView {
         return raw
     }
 }
-

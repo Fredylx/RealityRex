@@ -17,6 +17,7 @@ struct SplashScreenView: View {
     @State private var stage: Stage = .splash
     @State private var logoOpacity = 0.0
     @State private var prewarmTimeoutWorkItem: DispatchWorkItem?
+    @EnvironmentObject private var appState: AppState
 
     var body: some View {
         Group {
@@ -28,7 +29,8 @@ struct SplashScreenView: View {
             }
         }
         .onAppear(perform: runSplashSequence)
-        .onReceive(NotificationCenter.default.publisher(for: .rexDataReady)) { _ in
+        .onChange(of: appState.isRexDataReady) { ready in
+            guard ready else { return }
             prewarmTimeoutWorkItem?.cancel()
             if stage != .main {
                 withAnimation {
@@ -60,8 +62,8 @@ struct SplashScreenView: View {
     private func runSplashSequence() {
         DebugLog.log("Splash screen appeared", category: "UI")
         Task {
-            DebugLog.log("Prewarm started (mainThread=\(Thread.isMainThread))", category: "RexData")
-            await RexData.shared.prewarm()
+            await MainActor.run { DebugLog.log("Prewarm started (on main)", category: "RexData") }
+            await RexData.shared.prewarm(appState: appState)
             DebugLog.log("Prewarm finished", category: "RexData")
         }
 
@@ -72,12 +74,12 @@ struct SplashScreenView: View {
             }
         }
         prewarmTimeoutWorkItem = timeoutItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + 6.0, execute: timeoutItem)
+        DispatchQueue.main.asyncAfter(deadline: .now() + ARConstants.prewarmWarnTimeout, execute: timeoutItem)
         withAnimation(.easeIn(duration: 0.8)) {
             logoOpacity = 1.0
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + ARConstants.splashToMainDelay) {
             withAnimation {
                 stage = .main
             }

@@ -50,13 +50,22 @@ extension RexView {
             }
         }
         planeDetectionTimeoutWorkItem = item
-        DispatchQueue.main.asyncAfter(deadline: .now() + 8.0, execute: item)
+        DispatchQueue.main.asyncAfter(deadline: .now() + ARConstants.planeDetectionTimeout, execute: item)
     }
 
     func addOrUpdatePlaneVisual(for plane: ARPlaneAnchor) {
         guard let arView = arView else { return }
-        let size = plane.extent
-        let mesh = MeshResource.generatePlane(width: size.x, depth: size.z)
+        let (width, depth): (Float, Float)
+        if #available(iOS 16.0, *) {
+            let extent = plane.planeExtent
+            width = extent.width
+            depth = extent.height
+        } else {
+            let size = plane.extent
+            width = size.x
+            depth = size.z
+        }
+        let mesh = MeshResource.generatePlane(width: width, depth: depth)
         let material = SimpleMaterial(color: UIColor.green.withAlphaComponent(0.25), isMetallic: false)
 
         let planeEntity: ModelEntity

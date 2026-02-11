@@ -23,10 +23,9 @@ class RexObject {
         self.anchor = anchor
 
         for prototype in rexData.bodyFramePrototypes {
-            if let clone = prototype.clone(recursive: true) as? ModelEntity {
-                clone.isEnabled = false
-                bodyFrames.append(clone)
-            }
+            let clone = prototype.clone(recursive: true)
+            clone.isEnabled = false
+            bodyFrames.append(clone)
         }
         DebugLog.log("RexObject init: frames=\(bodyFrames.count)", category: "RexObject")
 
@@ -76,3 +75,4 @@ class RexObject {
         }
     }
 }
+

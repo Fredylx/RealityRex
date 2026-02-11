@@ -11,20 +11,11 @@ import RealityKit
 /// The main AR container view that layers the RealityKit scene with onboarding instructions.
 struct MainARView: View {
     @Environment(\.scenePhase) private var scenePhase
+    @EnvironmentObject private var appState: AppState
     @State private var arViewRef: ARView?
     @State private var placementEnabled = false
-    @StateObject private var appState = AppState()
     @State private var showInstructions = true
-    @State private var showLimitToast = false
-    @State private var toastWorkItem: DispatchWorkItem?
     @State private var showLoading = true
-    @State private var showLoadingTapHint = false
-    @State private var loadingTapWorkItem: DispatchWorkItem?
-    @State private var showAutoPlacementLoading = false
-    @State private var showAutoPlacementReady = false
-    @State private var autoPlacementMessage = "Preparing your first dino..."
-    @State private var autoPlacementReadyWorkItem: DispatchWorkItem?
-    @State private var hasSelectedDino = false
     
     var body: some View {
         ZStack {
@@ -38,29 +29,29 @@ struct MainARView: View {
             }
             
             VStack {
-                HStack {
-                    Spacer()
-                    
-                    VStack(spacing: 12) {
-                        // Info Button
-                        Button(action: {
-                            withAnimation {
-                                showInstructions = true
-                            }
-                        }) {
-                            Image(systemName: "info.circle")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(.white)
-                                .frame(width: 80, height: 36)
-                                .background(Color.black.opacity(0.6))
-                                .cornerRadius(10)
-                                .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
-                        }
-                    }
-                    
-                    .padding(.trailing, 16)
-                    .padding(.top, 16)
-                }
+//                HStack {
+//                    Spacer()
+//
+//                    VStack(spacing: 12) {
+//                        // Info Button
+//                        Button(action: {
+//                            withAnimation {
+//                                showInstructions = true
+//                            }
+//                        }) {
+//                            Image(systemName: "info.circle")
+//                                .font(.system(size: 18, weight: .semibold))
+//                                .foregroundColor(.white)
+//                                .frame(width: 80, height: 36)
+//                                .background(Color.black.opacity(0.6))
+//                                .cornerRadius(10)
+//                                .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+//                        }
+//                    }
+//
+//                    .padding(.trailing, 16)
+//                    .padding(.top, 16)
+//                }
                 
                 Spacer()
 
@@ -85,13 +76,20 @@ struct MainARView: View {
                 .padding(.bottom, 16)
             }
 
-//            VStack {
-//                Spacer()
-//                controllerPad
-//                    .padding(.bottom, 24)
-//            }
+            if FeatureFlags.controllerEnabled {
+                VStack {
+                    Spacer()
+                    ControllerPadView(
+                        onMove: { _ in },
+                        onRotate: { _ in },
+                        onScale: { _ in },
+                        onDelete: { }
+                    )
+                    .padding(.bottom, 24)
+                }
+            }
 
-            if showLimitToast {
+            if appState.showLimitToast {
                 VStack {
                     Spacer()
                     Text("Dino limit reached (14). Remove one to add more.")
@@ -124,14 +122,14 @@ struct MainARView: View {
                 .transition(.opacity)
             }
 
-            if showAutoPlacementLoading || showAutoPlacementReady {
+            if appState.showAutoPlacementLoading || appState.showAutoPlacementReady {
                 VStack(spacing: 8) {
-                    if showAutoPlacementLoading {
+                    if appState.showAutoPlacementLoading {
                         ProgressView()
                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                             .scaleEffect(1.1)
                     }
-                    Text(autoPlacementMessage)
+                    Text(appState.autoPlacementMessage)
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.white)
                 }
@@ -143,7 +141,7 @@ struct MainARView: View {
                 .transition(.opacity)
             }
 
-            if showLoadingTapHint {
+            if appState.showLoadingTapHint {
                 VStack {
                     Spacer()
                     Text("Loading… please wait")
@@ -161,82 +159,20 @@ struct MainARView: View {
         }
         .onAppear {
             DebugLog.log("MainARView appeared", category: "UI")
-            showLoading = !RexData.shared.isReady
+            showLoading = !appState.isRexDataReady
             DebugHangMonitor.shared.start()
         }
-        .onReceive(NotificationCenter.default.publisher(for: .rexDataReady)) { _ in
+        .onChange(of: appState.isRexDataReady) { ready in
             withAnimation(.easeOut(duration: 0.2)) {
-                showLoading = false
+                showLoading = !ready
             }
             DebugLog.log("RexData ready received", category: "UI")
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .dinoLoadingTap)) { _ in
-            loadingTapWorkItem?.cancel()
-            showLoadingTapHint = true
-            let item = DispatchWorkItem {
-                withAnimation(.easeOut(duration: 0.2)) {
-                    showLoadingTapHint = false
-                }
-            }
-            loadingTapWorkItem = item
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: item)
-            DebugLog.log("Loading tap hint shown", category: "UI")
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .autoPlacementStarted)) { _ in
-            withAnimation(.easeIn(duration: 0.2)) {
-                showAutoPlacementLoading = true
-                showAutoPlacementReady = false
-            }
-            DebugLog.log("Auto placement loading shown", category: "UI")
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .autoPlacementFinished)) { _ in
-            autoPlacementReadyWorkItem?.cancel()
-            showAutoPlacementReady = true
-            let item = DispatchWorkItem {
-                withAnimation(.easeOut(duration: 0.2)) {
-                    showAutoPlacementReady = false
-                }
-            }
-            autoPlacementReadyWorkItem = item
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2, execute: item)
-            withAnimation(.easeOut(duration: 0.2)) {
-                showAutoPlacementLoading = false
-            }
-            DebugLog.log("Auto placement loading hidden", category: "UI")
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .autoPlacementStatus)) { notification in
-            if let info = notification.userInfo,
-               let text = info["text"] as? String {
-                autoPlacementMessage = text
-            }
-        }
-//        .onReceive(NotificationCenter.default.publisher(for: .selectedDinoChanged)) { notification in
-//            if let selected = notification.object as? Bool {
-//                withAnimation(.easeInOut(duration: 0.2)) {
-//                    hasSelectedDino = selected
-//                }
-//            }
-//        }
-        .onReceive(NotificationCenter.default.publisher(for: .dinoLimitReached)) { _ in
-            showLimitToast = true
-            toastWorkItem?.cancel()
-            let item = DispatchWorkItem {
-                withAnimation(.easeOut(duration: 0.2)) {
-                    showLimitToast = false
-                }
-            }
-            toastWorkItem = item
-            withAnimation(.easeIn(duration: 0.2)) {
-                showLimitToast = true
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: item)
-            DebugLog.log("Dino limit toast shown", category: "UI")
         }
         .onChange(of: scenePhase) { newPhase in
             switch newPhase {
             case .active:
                 if let arView = arViewRef {
-                    arView.session.run(RealityKitView.defaultConfiguration())
+                    arView.session.run(ARSessionManager.defaultConfiguration())
                     DebugLog.log("Scene phase active: session run", category: "AR")
                 }
             case .inactive, .background:

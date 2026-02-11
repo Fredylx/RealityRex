@@ -355,6 +355,11 @@
 		A1B2C3D4E5F6012345678914 /* AR/RexView+Lifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678904 /* AR/RexView+Lifecycle.swift */; };
 		A1B2C3D4E5F6012345678915 /* App/AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678905 /* App/AppState.swift */; };
 		FD4E86B02F2C97C3006B6E10 /* Utils/DebugLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86AF2F2C97C3006B6E10 /* Utils/DebugLog.swift */; };
+		A1B2C3D4E5F6012345678916 /* Utils/Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678906 /* Utils/Notifications.swift */; };
+		A1B2C3D4E5F6012345678917 /* Utils/FeatureFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678907 /* Utils/FeatureFlags.swift */; };
+		A1B2C3D4E5F6012345678918 /* UI/Overlays/ControllerPadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678908 /* UI/Overlays/ControllerPadView.swift */; };
+		A1B2C3D4E5F6012345678919 /* Utils/ARConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678909 /* Utils/ARConstants.swift */; };
+		A1B2C3D4E5F6012345678920 /* AR/ARSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678910 /* AR/ARSessionManager.swift */; };
 		FD4E86FE2F2FFEE7006B6E10 /* Utils/DebugHangMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86FD2F2FFEE7006B6E10 /* Utils/DebugHangMonitor.swift */; };
 		FD4E87002F302633006B6E10 /* Utils/Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86FF2F302633006B6E10 /* Utils/Haptics.swift */; };
 		FD66F0442E330DA600525D18 /* App/SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD66F0432E330DA400525D18 /* App/SplashScreenView.swift */; };
@@ -713,6 +718,11 @@
 		A1B2C3D4E5F6012345678904 /* AR/RexView+Lifecycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AR/RexView+Lifecycle.swift"; sourceTree = "<group>"; };
 		A1B2C3D4E5F6012345678905 /* App/AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/AppState.swift; sourceTree = "<group>"; };
 		FD4E86AF2F2C97C3006B6E10 /* Utils/DebugLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/DebugLog.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6012345678906 /* Utils/Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/Notifications.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6012345678907 /* Utils/FeatureFlags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/FeatureFlags.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6012345678908 /* UI/Overlays/ControllerPadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UI/Overlays/ControllerPadView.swift"; sourceTree = "<group>"; };
+		A1B2C3D4E5F6012345678909 /* Utils/ARConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/ARConstants.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6012345678910 /* AR/ARSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AR/ARSessionManager.swift; sourceTree = "<group>"; };
 		FD4E86FD2F2FFEE7006B6E10 /* Utils/DebugHangMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/DebugHangMonitor.swift; sourceTree = "<group>"; };
 		FD4E86FF2F302633006B6E10 /* Utils/Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/Haptics.swift; sourceTree = "<group>"; };
 		FD66F0432E330DA400525D18 /* App/SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/SplashScreenView.swift; sourceTree = "<group>"; };
@@ -758,8 +768,13 @@
 				A1B2C3D4E5F6012345678905 /* App/AppState.swift */,
 				0D93FA7D29DC4E9E00DE18B5 /* Assets.xcassets */,
 				FD4E86AF2F2C97C3006B6E10 /* Utils/DebugLog.swift */,
+				A1B2C3D4E5F6012345678906 /* Utils/Notifications.swift */,
+				A1B2C3D4E5F6012345678907 /* Utils/FeatureFlags.swift */,
+				A1B2C3D4E5F6012345678909 /* Utils/ARConstants.swift */,
 				0D93FA8729DC502900DE18B5 /* AR/RealityKitView.swift */,
+				A1B2C3D4E5F6012345678910 /* AR/ARSessionManager.swift */,
 				FD66F0452E34176800525D18 /* UI/Overlays/InstructionOverlayView.swift */,
+				A1B2C3D4E5F6012345678908 /* UI/Overlays/ControllerPadView.swift */,
 				0D93FA8929DC524A00DE18B5 /* AR/RexView.swift */,
 				A1B2C3D4E5F6012345678901 /* AR/RexView+Placement.swift */,
 				A1B2C3D4E5F6012345678902 /* AR/RexView+AutoPlacement.swift */,
@@ -1628,12 +1643,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				0D93FA8A29DC524A00DE18B5 /* AR/RexView.swift in Sources */,
+				A1B2C3D4E5F6012345678920 /* AR/ARSessionManager.swift in Sources */,
 				A1B2C3D4E5F6012345678911 /* AR/RexView+Placement.swift in Sources */,
 				A1B2C3D4E5F6012345678912 /* AR/RexView+AutoPlacement.swift in Sources */,
 				A1B2C3D4E5F6012345678913 /* AR/RexView+PlaneVisualization.swift in Sources */,
 				A1B2C3D4E5F6012345678914 /* AR/RexView+Lifecycle.swift in Sources */,
 				0D9509B029E5B6940068F8FB /* AR/RexObject.swift in Sources */,
 				FD4E86B02F2C97C3006B6E10 /* Utils/DebugLog.swift in Sources */,
+				A1B2C3D4E5F6012345678916 /* Utils/Notifications.swift in Sources */,
+				A1B2C3D4E5F6012345678917 /* Utils/FeatureFlags.swift in Sources */,
+				A1B2C3D4E5F6012345678919 /* Utils/ARConstants.swift in Sources */,
 				0D93FD3929DC540F00DE18B5 /* Data/RexData.swift in Sources */,
 				0D93FA7A29DC4E9B00DE18B5 /* App/RealityRexApp.swift in Sources */,
 				A1B2C3D4E5F6012345678915 /* App/AppState.swift in Sources */,
@@ -1643,6 +1662,7 @@
 				FD66F0482E341D6400525D18 /* UI/Screens/MainARView.swift in Sources */,
 				FD66F0442E330DA600525D18 /* App/SplashScreenView.swift in Sources */,
 				FD66F0462E34176800525D18 /* UI/Overlays/InstructionOverlayView.swift in Sources */,
+				A1B2C3D4E5F6012345678918 /* UI/Overlays/ControllerPadView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

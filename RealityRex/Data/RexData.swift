@@ -19,13 +19,13 @@ final class RexData {
     private var totalFrames = 0
     static let shared = RexData()
 
-    static func prewarm() {
-        Task { await Self.shared.prewarm() }
+    nonisolated static func prewarm(appState: AppState? = nil) {
+        Task { await Self.shared.prewarm(appState: appState) }
     }
 
     init() {}
 
-    func prewarm() async {
+    func prewarm(appState: AppState? = nil) async {
         guard !isReady, !isLoading else { return }
         isLoading = true
         let start = CFAbsoluteTimeGetCurrent()
@@ -59,6 +59,7 @@ final class RexData {
             self.isLoading = false
             let duration = CFAbsoluteTimeGetCurrent() - start
             DebugLog.log("RexData prewarm duration: \(String(format: "%.3f", duration))s", category: "RexData")
+            appState?.isRexDataReady = true
             NotificationCenter.default.post(name: .rexDataReady, object: nil)
         }
     }
@@ -101,7 +102,9 @@ final class RexData {
             meshDescriptor.normals = MeshBuffers.Normals(normals)
 
             do {
-                let mesh = try MeshResource.generate(from: [meshDescriptor])
+                let mesh: MeshResource = try await Task.detached(priority: nil) {
+                    try MeshResource.generate(from: [meshDescriptor])
+                }.value
                 meshes.append(mesh)
             } catch {
                 DebugLog.log("RexData frame \(index): MeshResource.generate failed: \(error)", category: "RexData")

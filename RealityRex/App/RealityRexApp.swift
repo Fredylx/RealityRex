@@ -9,12 +9,15 @@ import SwiftUI
 
 @main
 struct RealityRexApp: App {
+    @StateObject private var appState = AppState()
+
     var body: some Scene {
         WindowGroup {
             SplashScreenView()
                 .onAppear {
                     DebugLog.log("App launched", category: "App")
                 }
+                .environmentObject(appState)
         }
     }
 }

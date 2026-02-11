@@ -16,12 +16,9 @@ extension RexView {
               let transform = pendingAutoPlacementTransform else { return }
 
         isAutoPlacing = true
-        NotificationCenter.default.post(name: .autoPlacementStarted, object: nil)
-        NotificationCenter.default.post(
-            name: .autoPlacementStatus,
-            object: nil,
-            userInfo: ["text": "Preparing your first dino..."]
-        )
+        appState.showAutoPlacementLoading = true
+        appState.showAutoPlacementReady = false
+        appState.autoPlacementMessage = "Preparing your first dino..."
         scheduleAutoPlacementTimeout()
 
         let anchor = AnchorEntity(world: transform)
@@ -52,12 +49,15 @@ extension RexView {
             self.autoPlacedRex?.anchor?.removeFromParent()
             self.autoPlacedRex = nil
             self.isAutoPlacing = false
-            NotificationCenter.default.post(name: .autoPlacementFinished, object: nil)
-            NotificationCenter.default.post(
-                name: .autoPlacementStatus,
-                object: nil,
-                userInfo: ["text": "Ready — tap to place!"]
-            )
+            self.appState.showAutoPlacementLoading = false
+            self.appState.showAutoPlacementReady = true
+            self.appState.autoPlacementMessage = "Ready — tap to place!"
+            self.autoPlacementReadyWorkItem?.cancel()
+            let item = DispatchWorkItem { [weak self] in
+                self?.appState.showAutoPlacementReady = false
+            }
+            self.autoPlacementReadyWorkItem = item
+            DispatchQueue.main.asyncAfter(deadline: .now() + ARConstants.autoPlacementReadyDisplay, execute: item)
             DebugLog.log("Auto placement finished; user placement enabled", category: "RexView")
         }
     }
@@ -71,6 +71,6 @@ extension RexView {
             }
         }
         autoPlacementTimeoutWorkItem = item
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0, execute: item)
+        DispatchQueue.main.asyncAfter(deadline: .now() + ARConstants.autoPlacementTimeout, execute: item)
     }
 }
