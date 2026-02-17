@@ -11,4 +11,4 @@ The camera is used to provide the augmented reality experience. Camera data is p
 RealityRex does not use third‑party analytics or tracking SDKs.
 
 ## Contact
-If you have questions about this policy, contact us at support@codbodydynamics.com.
+If you have questions about this policy, contact us at support@codebodydynamics.com.

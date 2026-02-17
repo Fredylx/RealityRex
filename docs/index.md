@@ -25,7 +25,7 @@ RealityRex lets you place a walking T‑Rex in your environment using augmented 
 - Restart the device if AR tracking doesn’t recover after a few minutes.
 
 ## Contact
-- Email: support@yourcompany.com
+- Email: support@codebodydynamics.com
 - Please include your device model and iOS version, and describe what you were doing when the issue occurred.
 
 ## Privacy
