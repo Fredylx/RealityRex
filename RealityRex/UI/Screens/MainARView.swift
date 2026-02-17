@@ -73,9 +73,10 @@ struct MainARView: View {
                     Spacer()
                 }
                 .padding(.leading, 16)
-                .padding(.bottom, 16)
+                .padding(.bottom, 80)
             }
 
+            /*
             if FeatureFlags.controllerEnabled {
                 VStack {
                     Spacer()
@@ -88,6 +89,7 @@ struct MainARView: View {
                     .padding(.bottom, 24)
                 }
             }
+            */
 
             if appState.showLimitToast {
                 VStack {

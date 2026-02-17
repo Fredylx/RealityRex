@@ -17,6 +17,7 @@ struct SplashScreenView: View {
     @State private var stage: Stage = .splash
     @State private var logoOpacity = 0.0
     @State private var prewarmTimeoutWorkItem: DispatchWorkItem?
+    @State private var showPrivacyPolicy = false
     @EnvironmentObject private var appState: AppState
 
     var body: some View {
@@ -56,6 +57,35 @@ struct SplashScreenView: View {
                 )
                 .shadow(radius: 12)
                 .opacity(logoOpacity)
+
+            VStack {
+                Spacer()
+                    .frame(height: 260)
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.0)
+                Text("Loading dino...")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(.top, 6)
+            }
+
+            VStack {
+                Spacer()
+                Button("Privacy Policy") {
+                    showPrivacyPolicy = true
+                }
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(Color.black.opacity(0.6))
+                .cornerRadius(10)
+                .padding(.bottom, 24)
+            }
+        }
+        .sheet(isPresented: $showPrivacyPolicy) {
+            PrivacyPolicyView()
         }
     }
 

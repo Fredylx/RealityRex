@@ -354,12 +354,13 @@
 		A1B2C3D4E5F6012345678913 /* AR/RexView+PlaneVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678903 /* AR/RexView+PlaneVisualization.swift */; };
 		A1B2C3D4E5F6012345678914 /* AR/RexView+Lifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678904 /* AR/RexView+Lifecycle.swift */; };
 		A1B2C3D4E5F6012345678915 /* App/AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678905 /* App/AppState.swift */; };
-		FD4E86B02F2C97C3006B6E10 /* Utils/DebugLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86AF2F2C97C3006B6E10 /* Utils/DebugLog.swift */; };
 		A1B2C3D4E5F6012345678916 /* Utils/Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678906 /* Utils/Notifications.swift */; };
 		A1B2C3D4E5F6012345678917 /* Utils/FeatureFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678907 /* Utils/FeatureFlags.swift */; };
 		A1B2C3D4E5F6012345678918 /* UI/Overlays/ControllerPadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678908 /* UI/Overlays/ControllerPadView.swift */; };
 		A1B2C3D4E5F6012345678919 /* Utils/ARConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678909 /* Utils/ARConstants.swift */; };
 		A1B2C3D4E5F6012345678920 /* AR/ARSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678910 /* AR/ARSessionManager.swift */; };
+		A1B2C3D4E5F6012345678921 /* UI/Overlays/PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F601234567890A11 /* UI/Overlays/PrivacyPolicyView.swift */; };
+		FD4E86B02F2C97C3006B6E10 /* Utils/DebugLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86AF2F2C97C3006B6E10 /* Utils/DebugLog.swift */; };
 		FD4E86FE2F2FFEE7006B6E10 /* Utils/DebugHangMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86FD2F2FFEE7006B6E10 /* Utils/DebugHangMonitor.swift */; };
 		FD4E87002F302633006B6E10 /* Utils/Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86FF2F302633006B6E10 /* Utils/Haptics.swift */; };
 		FD66F0442E330DA600525D18 /* App/SplashScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD66F0432E330DA400525D18 /* App/SplashScreenView.swift */; };
@@ -717,12 +718,13 @@
 		A1B2C3D4E5F6012345678903 /* AR/RexView+PlaneVisualization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AR/RexView+PlaneVisualization.swift"; sourceTree = "<group>"; };
 		A1B2C3D4E5F6012345678904 /* AR/RexView+Lifecycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AR/RexView+Lifecycle.swift"; sourceTree = "<group>"; };
 		A1B2C3D4E5F6012345678905 /* App/AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/AppState.swift; sourceTree = "<group>"; };
-		FD4E86AF2F2C97C3006B6E10 /* Utils/DebugLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/DebugLog.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6012345678906 /* Utils/Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/Notifications.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6012345678907 /* Utils/FeatureFlags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/FeatureFlags.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6012345678908 /* UI/Overlays/ControllerPadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UI/Overlays/ControllerPadView.swift"; sourceTree = "<group>"; };
+		A1B2C3D4E5F6012345678908 /* UI/Overlays/ControllerPadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI/Overlays/ControllerPadView.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6012345678909 /* Utils/ARConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/ARConstants.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6012345678910 /* AR/ARSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AR/ARSessionManager.swift; sourceTree = "<group>"; };
+		B2C3D4E5F601234567890A11 /* UI/Overlays/PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI/Overlays/PrivacyPolicyView.swift; sourceTree = "<group>"; };
+		FD4E86AF2F2C97C3006B6E10 /* Utils/DebugLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/DebugLog.swift; sourceTree = "<group>"; };
 		FD4E86FD2F2FFEE7006B6E10 /* Utils/DebugHangMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/DebugHangMonitor.swift; sourceTree = "<group>"; };
 		FD4E86FF2F302633006B6E10 /* Utils/Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/Haptics.swift; sourceTree = "<group>"; };
 		FD66F0432E330DA400525D18 /* App/SplashScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/SplashScreenView.swift; sourceTree = "<group>"; };
@@ -775,6 +777,7 @@
 				A1B2C3D4E5F6012345678910 /* AR/ARSessionManager.swift */,
 				FD66F0452E34176800525D18 /* UI/Overlays/InstructionOverlayView.swift */,
 				A1B2C3D4E5F6012345678908 /* UI/Overlays/ControllerPadView.swift */,
+				B2C3D4E5F601234567890A11 /* UI/Overlays/PrivacyPolicyView.swift */,
 				0D93FA8929DC524A00DE18B5 /* AR/RexView.swift */,
 				A1B2C3D4E5F6012345678901 /* AR/RexView+Placement.swift */,
 				A1B2C3D4E5F6012345678902 /* AR/RexView+AutoPlacement.swift */,
@@ -1663,6 +1666,7 @@
 				FD66F0442E330DA600525D18 /* App/SplashScreenView.swift in Sources */,
 				FD66F0462E34176800525D18 /* UI/Overlays/InstructionOverlayView.swift in Sources */,
 				A1B2C3D4E5F6012345678918 /* UI/Overlays/ControllerPadView.swift in Sources */,
+				A1B2C3D4E5F6012345678921 /* UI/Overlays/PrivacyPolicyView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1789,27 +1793,29 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_ASSET_PATHS = "\"RealityRex/Preview Content\"";
 				DEVELOPMENT_TEAM = 3TRHG5UZ93;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Reality Rex";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Use RealityKit to render a 3D dinosaur scene.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.codebodydynamics.realityrex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -1819,27 +1825,29 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_ASSET_PATHS = "\"RealityRex/Preview Content\"";
 				DEVELOPMENT_TEAM = 3TRHG5UZ93;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Reality Rex";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Use RealityKit to render a 3D dinosaur scene.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.codebodydynamics.realityrex;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
