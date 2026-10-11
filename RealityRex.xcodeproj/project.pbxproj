@@ -360,6 +360,8 @@
 		A1B2C3D4E5F6012345678919 /* Utils/ARConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678909 /* Utils/ARConstants.swift */; };
 		A1B2C3D4E5F6012345678920 /* AR/ARSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6012345678910 /* AR/ARSessionManager.swift */; };
 		A1B2C3D4E5F6012345678921 /* UI/Overlays/PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F601234567890A11 /* UI/Overlays/PrivacyPolicyView.swift */; };
+		B86890E089635355902A3B78 /* UI/Overlays/AdBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41CEEFC0AE7A74343D816933 /* UI/Overlays/AdBanner.swift */; };
+		E483D8C2F4B9DE7625EF42AA /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 051CAD495D1526C0A4704F1D /* GoogleMobileAds */; };
 		FD4E86B02F2C97C3006B6E10 /* Utils/DebugLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86AF2F2C97C3006B6E10 /* Utils/DebugLog.swift */; };
 		FD4E86FE2F2FFEE7006B6E10 /* Utils/DebugHangMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86FD2F2FFEE7006B6E10 /* Utils/DebugHangMonitor.swift */; };
 		FD4E87002F302633006B6E10 /* Utils/Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4E86FF2F302633006B6E10 /* Utils/Haptics.swift */; };
@@ -724,6 +726,7 @@
 		A1B2C3D4E5F6012345678909 /* Utils/ARConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/ARConstants.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F6012345678910 /* AR/ARSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AR/ARSessionManager.swift; sourceTree = "<group>"; };
 		B2C3D4E5F601234567890A11 /* UI/Overlays/PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI/Overlays/PrivacyPolicyView.swift; sourceTree = "<group>"; };
+		41CEEFC0AE7A74343D816933 /* UI/Overlays/AdBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UI/Overlays/AdBanner.swift; sourceTree = "<group>"; };
 		FD4E86AF2F2C97C3006B6E10 /* Utils/DebugLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/DebugLog.swift; sourceTree = "<group>"; };
 		FD4E86FD2F2FFEE7006B6E10 /* Utils/DebugHangMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/DebugHangMonitor.swift; sourceTree = "<group>"; };
 		FD4E86FF2F302633006B6E10 /* Utils/Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils/Haptics.swift; sourceTree = "<group>"; };
@@ -738,6 +741,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E483D8C2F4B9DE7625EF42AA /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -778,6 +782,7 @@
 				FD66F0452E34176800525D18 /* UI/Overlays/InstructionOverlayView.swift */,
 				A1B2C3D4E5F6012345678908 /* UI/Overlays/ControllerPadView.swift */,
 				B2C3D4E5F601234567890A11 /* UI/Overlays/PrivacyPolicyView.swift */,
+				41CEEFC0AE7A74343D816933 /* UI/Overlays/AdBanner.swift */,
 				0D93FA8929DC524A00DE18B5 /* AR/RexView.swift */,
 				A1B2C3D4E5F6012345678901 /* AR/RexView+Placement.swift */,
 				A1B2C3D4E5F6012345678902 /* AR/RexView+AutoPlacement.swift */,
@@ -1255,6 +1260,9 @@
 			dependencies = (
 			);
 			name = RealityRex;
+			packageProductDependencies = (
+				051CAD495D1526C0A4704F1D /* GoogleMobileAds */,
+			);
 			productName = RealityRex;
 			productReference = 0D93FA7629DC4E9B00DE18B5 /* RealityRex.app */;
 			productType = "com.apple.product-type.application";
@@ -1264,6 +1272,9 @@
 /* Begin PBXProject section */
 		0D93FA6E29DC4E9B00DE18B5 /* Project object */ = {
 			isa = PBXProject;
+			packageReferences = (
+				4EE78247DA26AB703EFABF84 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+			);
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1420;
@@ -1667,6 +1678,7 @@
 				FD66F0462E34176800525D18 /* UI/Overlays/InstructionOverlayView.swift in Sources */,
 				A1B2C3D4E5F6012345678918 /* UI/Overlays/ControllerPadView.swift in Sources */,
 				A1B2C3D4E5F6012345678921 /* UI/Overlays/PrivacyPolicyView.swift in Sources */,
+				B86890E089635355902A3B78 /* UI/Overlays/AdBanner.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1790,6 +1802,9 @@
 		0D93FA8529DC4E9E00DE18B5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ADMOB_BANNER_UNIT_ID = "ca-app-pub-3940256099942544/2435281174";
+				GAD_APPLICATION_IDENTIFIER = "ca-app-pub-3940256099942544~1458002511";
+				INFOPLIST_FILE = "Config/AdMob-Info.plist";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
@@ -1822,6 +1837,9 @@
 		0D93FA8629DC4E9E00DE18B5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ADMOB_BANNER_UNIT_ID = "";
+				GAD_APPLICATION_IDENTIFIER = "";
+				INFOPLIST_FILE = "Config/AdMob-Info.plist";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
@@ -1873,6 +1891,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		4EE78247DA26AB703EFABF84 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads";
+			requirement = {
+				kind = exactVersion;
+				version = 12.14.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		051CAD495D1526C0A4704F1D /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4EE78247DA26AB703EFABF84 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0D93FA6E29DC4E9B00DE18B5 /* Project object */;
 }

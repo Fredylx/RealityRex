@@ -22,6 +22,12 @@ struct MainARView: View {
             RealityKitView(arViewRef: $arViewRef, placementEnabled: $placementEnabled, appState: appState)
                 .ignoresSafeArea()
             
+            // Child-directed banner at the top: the bottom holds the dino count and hints.
+            VStack {
+                AdBannerView()
+                Spacer()
+            }
+
             if showInstructions {
                 InstructionOverlayView {
                     showInstructions = false
@@ -160,6 +166,7 @@ struct MainARView: View {
             }
         }
         .onAppear {
+            AdsBootstrap.shared.start()
             DebugLog.log("MainARView appeared", category: "UI")
             showLoading = !appState.isRexDataReady
             DebugHangMonitor.shared.start()
